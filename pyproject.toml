@@ -1,0 +1,19 @@
+[project]
+name = "sn-providing"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10,<3.11"
+dependencies = [
+    "numpy>=2.1.0",
+    "pandas>=2.2.2",
+    "typed-argument-parser>=1.10.1",
+    "ipykernel>=6.29.5",
+    "ruff>=0.6.2",
+    "gensim>=4.3.2",
+    "nltk>=3.9.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
