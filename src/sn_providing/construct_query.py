@@ -67,7 +67,8 @@ class SpottingDataList:
     
     def to_jsonline(self, output_file: str):
         with open(output_file, 'w') as f:
-            f.writelines([json.dumps(spottings.__dict__) for spottings in self.spottings])
+            for s in self.spottings:
+                f.write(json.dumps(s.__dict__) + "\n")
     
     def show_times(self, head: Optional[int] = None):
         head = head if head else len(self.spottings)
@@ -127,7 +128,7 @@ class CommentDataList:
         comments: "CommentDataList", 
         half: int, 
         game_time: str, 
-        seconds_before: int = 10
+        seconds_before: int = 60
     ) -> "CommentDataList":
         """
         seconds_before 秒前から game_time までのコメントを取得
@@ -161,7 +162,8 @@ def build_query(
     """
     query = ""
     
-    for comment in comments.comments:
+    # commentsは時系列順に並んでいるので、逆順にして直近のコメントから取得
+    for comment in reversed(comments.comments):
         if len(query) > max_length:
             break
         query += comment.text + " "
