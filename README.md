@@ -9,3 +9,16 @@
 ## input data
 
 - spot sequence (json file)
+- comment csv file
+
+## usage so far
+
+```bash
+# 1 prepare input data and fix paths in the scripts
+
+# 2 construct query for retrieving additional information
+scripts/construct_query_comments.sh
+
+# 3 generate candidates of additional information
+scripts/addinfo_retrieval.sh
+```
