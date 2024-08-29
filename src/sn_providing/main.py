@@ -1,3 +1,7 @@
+"""
+spotting, retrieval, and comment-generating を E2E に行うためのスクリプト
+
+"""
 import sys
 import os
 

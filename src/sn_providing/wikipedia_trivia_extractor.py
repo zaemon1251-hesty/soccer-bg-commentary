@@ -1,3 +1,11 @@
+"""
+Work In Progress
+
+Implementation of [Hierarchical Trivia Fact Extraction from Wikipedia Articles](https://aclanthology.org/2020.coling-main.424/)
+for additional information retrieval
+
+"""
+
 from __future__ import annotations
 import nltk
 import numpy as np
