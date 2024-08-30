@@ -5,3 +5,6 @@
 
 storage/
 data/
+
+outputs
+.DS_Store

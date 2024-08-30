@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     # query
     result_list = SpottingDataList([])
-    for spotting_data in spotting_data_list.spottings[:10]:
+    for spotting_data in spotting_data_list.spottings[:10]: # run only 10 head for debug
         logger.info(f"Querying: {spotting_data.query}")
         if spotting_data.query is None:
             continue

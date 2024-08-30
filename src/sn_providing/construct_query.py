@@ -23,7 +23,7 @@ class SpottingData:
     game_time: int
     confidence: float
     position: int
-    category: str
+    category: str # 0(映像の説明) or 1(付加的情報)
     query: Optional[str] = None
     addiofo: Optional[List[str]] = None
 

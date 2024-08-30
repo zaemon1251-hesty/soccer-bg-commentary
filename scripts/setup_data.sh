@@ -1,3 +1,4 @@
 #!/bin/bash
 
-cp ../sn-script/database/knowledge_base_text/* ./data/addinfo_retrieval
+# (project-root)/dataにarchives/data.zipを解凍する
+unzip -o archives/data.zip -d data
