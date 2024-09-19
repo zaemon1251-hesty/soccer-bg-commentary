@@ -63,12 +63,12 @@ class SpottingDataList:
         return SpottingDataList(spottings)
 
     def to_json(self, output_file: str):
-        json.dump([s.__dict__ for s in self.spottings], open(output_file, "w"))    
+        json.dump([s.__dict__ for s in self.spottings], open(output_file, "w"), ensure_ascii=False)    
     
     def to_jsonline(self, output_file: str):
         with open(output_file, 'w') as f:
             for s in self.spottings:
-                f.write(json.dumps(s.__dict__) + "\n")
+                f.write(json.dumps(s.__dict__, ensure_ascii=False) + "\n")
     
     def show_times(self, head: Optional[int] = None):
         head = head if head else len(self.spottings)

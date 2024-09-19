@@ -2,7 +2,7 @@
 
 # related to spotting json file
 INPUT_JSON_DIR="data/spotting"
-SPOTTING_MODEL="commentary_naive_fixed_interval_classA6_classB38"
+SPOTTING_MODEL="commentay_gold"
 TARGET_GAME="england_epl/2015-2016/2015-08-16 - 18-00 Manchester City 3 - 0 Chelsea"
 INPUT_FILE="$INPUT_JSON_DIR/$SPOTTING_MODEL/$TARGET_GAME/results_spotting.json"
 
@@ -12,7 +12,7 @@ COMMENT_CSV_FILE_HALF1="$INPUT_CSV_DIR/gpt-3.5-turbo-1106_500game_1_llm_annotati
 COMMENT_CSV_FILE_HALF2="$INPUT_CSV_DIR/gpt-3.5-turbo-1106_500game_2_llm_annotation.csv"
 
 # related to output file
-OUTPUT_FILE="outputs/$TARGET_GAME/results_spotting_query.jsonl"
+OUTPUT_FILE="outputs/$TARGET_GAME/2024-09-17-12-24-results_spotting_query.jsonl"
 mkdir -p "outputs/$TARGET_GAME"
 
 

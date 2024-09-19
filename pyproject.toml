@@ -23,6 +23,8 @@ dependencies = [
     "cassio>=0.1.7",
     "langchain-huggingface>=0.0.3",
     "python-dotenv>=1.0.1",
+    "faiss-cpu>=1.8.0.post1",
+    "beautifulsoup4>=4.12.3",
 ]
 
 [build-system]
