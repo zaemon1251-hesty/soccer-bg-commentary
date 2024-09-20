@@ -137,7 +137,7 @@ class CommentDataList:
             c for c in comments.comments
             if c.half == half and \
                 c.start_time >= game_time - seconds_before and \
-                c.start_time <= game_time
+                c.start_time < game_time
             ]
         return CommentDataList(filterd_comments)
     
@@ -158,16 +158,21 @@ def build_query(
     - 直近のコメント
     - TODO SoccerNet Caption Labels-caption.json のメタデータ(選手情報など)
     - TODO Game State Reconstruction の情報
-    - TODO Yahoo Research のAction Spotting の情報
+    - TODO OSL Spotiing のAction Spotting の情報
     """
-    query = ""
+    query = []
+    total_length = 0
     
     # commentsは時系列順に並んでいるので、逆順にして直近のコメントから取得
     for comment in reversed(comments.comments):
-        if len(query) > max_length:
+        if total_length + len(comment.text) > max_length:
             break
-        query += comment.text + " "
-
+        query.append(comment.text)
+        total_length += len(comment.text) + 1
+    
+    # 逆順にしていたので、再度逆順にして返す
+    query = " ".join(reversed(query))
+    
     return query
 
 
