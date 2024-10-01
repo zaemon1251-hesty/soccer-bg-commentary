@@ -70,9 +70,8 @@ EMBEDDING_CONFIG = {
 
 INSTRUCTION = \
 """
-Using Wikipedia as a source, provide five facts (including records and statistics) related to the current query. 
-Each fact should be presented in a single, concise sentence. 
-Do not include any additional messages.
+Using the documents below, provide five facts, including records and statistics, relevant to the current query. 
+Each fact should be stated in one clear and concise sentence, without any additional commentary.
 """
 
 # 知識ベースのデータ保存場所
@@ -139,7 +138,7 @@ def run_langchain(spotting_data_list: SpottingDataList, output_file: str, retrie
     prompt_template = \
 """{instruction}
 
-=== wikipedia documents
+=== documents
 {documents}
 
 === query context
