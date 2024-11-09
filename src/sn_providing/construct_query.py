@@ -13,8 +13,7 @@ class Arguments(Tap):
     game: str
     input_file: str
     output_file: str
-    comment_csv_file_half1: str
-    comment_csv_file_half2: str
+    comment_csv: str
 
 
 @dataclass
@@ -30,6 +29,7 @@ class SpottingData:
 
 @dataclass
 class SpottingDataList:
+    """スポッティングデータの配列"""
     spottings: List[SpottingData]
     
     @staticmethod
@@ -89,12 +89,9 @@ class CommentDataList:
     comments: List[CommentData]
     
     @staticmethod
-    def read_csv(csv_file_half1: str, csv_file_half2: str, game: str) -> "CommentDataList":
-        comment_df_half1 = pd.read_csv(csv_file_half1)
-        comment_df_half2 = pd.read_csv(csv_file_half2)
-        
-        comment_df_half1["half"] = 1
-        comment_df_half2["half"] = 2
+    def read_csv(comment_csv: str, game: str) -> "CommentDataList":
+        comment_df = pd.read_csv(comment_csv)
+        assert set(comment_df.columns) >= {"game", "half", "start", "end", "text", "付加的情報か"}
         
         # TODO 前処理はmethod分割したい
         
@@ -103,21 +100,17 @@ class CommentDataList:
             return minute * 60 + second
         
         # 指定のgame に対応するコメントのみ取得
-        comment_df_half1 = comment_df_half1[comment_df_half1["game"] == game]
-        comment_df_half2 = comment_df_half2[comment_df_half2["game"] == game]
+        comment_df = comment_df[comment_df["game"] == game]
 
         # start time を秒に変換
-        comment_df_half1["start"] = comment_df_half1["start"].apply(convert_time)
-        comment_df_half2["start"] = comment_df_half2["start"].apply(convert_time)
+        if comment_df["start"].dtype == "O":
+            comment_df["start"] = comment_df["start"].apply(convert_time)
         
         # 並び替え
-        comment_df_half1 = comment_df_half1.sort_values("start")
-        comment_df_half2 = comment_df_half2.sort_values("start")
-        
-        comment_df_all = pd.concat([comment_df_half1, comment_df_half2])
-        
+        comment_df = comment_df.sort_values("start")
+                
         comments = []
-        for i, row in comment_df_all.iterrows():
+        for i, row in comment_df.iterrows():
             comment = CommentData(int(row["half"]), int(row["start"]), row["text"], str(row["付加的情報か"]))
             comments.append(comment)
         
@@ -192,7 +185,7 @@ def run(args: Arguments):
     spotting_data_list = SpottingDataList.read_json(args.input_file)    
     spotting_data_list = SpottingDataList.filter_by_category_1(spotting_data_list)
     
-    comment_data_list = CommentDataList.read_csv(args.comment_csv_file_half1, args.comment_csv_file_half2, args.game)
+    comment_data_list = CommentDataList.read_csv(args.comment_csv, args.game)
     
     logger.info("Spotting data")
     logger.info(f"{len(spotting_data_list.spottings)=}")

@@ -164,7 +164,7 @@ Answer:"""
     )
 
     result_list = SpottingDataList([])
-    for spotting_data in spotting_data_list.spottings[:10]: # 実行 only 10 head for debug
+    for spotting_data in spotting_data_list.spottings:
         logger.info(f"Querying: {spotting_data.query}")
         if spotting_data.query is None:
             continue
