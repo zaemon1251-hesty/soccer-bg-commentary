@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional, List
 from tap import Tap
 import json
@@ -14,6 +15,7 @@ class Arguments(Tap):
     input_file: str
     output_file: str
     comment_csv: str
+    video_data_csv: str
 
 
 @dataclass
@@ -108,7 +110,6 @@ class CommentDataList:
         
         # 並び替え
         comment_df = comment_df.sort_values("start")
-                
         comments = []
         for i, row in comment_df.iterrows():
             comment = CommentData(int(row["half"]), int(row["start"]), row["text"], str(row["付加的情報か"]))
@@ -140,6 +141,27 @@ class CommentDataList:
             logger.info(f"{s.half=}, {s.start_time=}")
 
 
+class VideoData:
+    def __init__(self, player_csv: Path, sec_threshold: int = 2):
+        # パラメータを設定
+        self.sec_threshold = sec_threshold
+        
+        # データを読み込み
+        self.player_df = pd.read_csv(player_csv)
+        assert set(self.player_df.columns) >= {"game", "half", "time", "team", "name"}
+
+    def get_data(self, game,  half: int, game_time: int) -> dict[str, str]:
+        # 2秒前から2秒後の間に映っている選手名/teamを取得
+        spot_players_df = self.player_df[
+            (self.player_df["half"] == half) & \
+            (self.player_df["game"] == game) & \
+            (self.player_df["time"] >= game_time - self.sec_threshold) & \
+            (self.player_df["time"] <= game_time + self.sec_threshold)
+        ]
+        player_team_names = spot_players_df[['team', 'name']].to_dict(orient='records')
+        
+        return player_team_names
+
 
 def build_query(
     comments: CommentDataList, 
@@ -165,6 +187,12 @@ def build_query(
     
     # 逆順にしていたので、再度逆順にして返す
     query = " ".join(reversed(query))
+    query = "Previous comments: " + query
+    
+    # 映像中に映っている選手の名前を取得
+    if "video_data" in kargs and kargs["video_data"]:
+        team_game_str = " ".join([f"{p['name']} @ {p['team']}" for p in kargs['video_data']])
+        query = f"Players shown in this frame: {team_game_str}\n\n" + query
     
     return query
 
@@ -185,16 +213,29 @@ def run(args: Arguments):
     spotting_data_list = SpottingDataList.read_json(args.input_file)    
     spotting_data_list = SpottingDataList.filter_by_category_1(spotting_data_list)
     
+    video_data = VideoData(args.video_data_csv)
+    
     comment_data_list = CommentDataList.read_csv(args.comment_csv, args.game)
     
     logger.info("Spotting data")
     logger.info(f"{len(spotting_data_list.spottings)=}")
-    spotting_data_list.show_times(4)
     logger.info("Comment data")
     logger.info(f"{len(comment_data_list.comments)=}")
-    comment_data_list.show_times(16)
     
     result_spottings = []
+    
+    # spotting データのtimeリスト と video_data の timeリスト を比較する
+    spot_time_set = set()
+    for spotting_data in spotting_data_list.spottings:
+        spot_time_set.add((spotting_data.half, spotting_data.game_time))
+    
+    frame_time_set = set()
+    for i, data in video_data.player_df.iterrows():
+        frame_time_set.add((data["half"], data["time"]))
+    
+    # logger.info(f"{spot_time_set=}")
+    # logger.info(f"{frame_time_set=}")
+    # logger.info(f"{(spot_time_set & frame_time_set)=}")
     
     for spotting_data in spotting_data_list.spottings:
         filtered_comment_list = CommentDataList.filter_by_half_and_time(
@@ -202,7 +243,8 @@ def run(args: Arguments):
             spotting_data.half, 
             spotting_data.game_time
         )
-        query = build_query(comments=filtered_comment_list)
+        player_and_teams = video_data.get_data(args.game, spotting_data.half, spotting_data.game_time)
+        query = build_query(comments=filtered_comment_list, video_data=player_and_teams)
         spotting_data.query = query
         result_spottings.append(spotting_data)
 
