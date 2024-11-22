@@ -15,7 +15,7 @@ class Arguments(Tap):
     input_file: str
     output_file: str
     comment_csv: str
-    video_data_csv: str
+    video_data_csv: str = None
 
 
 @dataclass
@@ -27,7 +27,7 @@ class SpottingData:
     category: str # 0(映像の説明) or 1(付加的情報)
     query: Optional[str] = None
     addiofo: Optional[List[str]] = None
-
+    reference: Optional[str] = None
 
 @dataclass
 class SpottingDataList:
@@ -135,6 +135,12 @@ class CommentDataList:
             ]
         return CommentDataList(filterd_comments)
     
+    def get_comment_by_time(self, game_time: int) -> str:
+        for comment in self.comments:
+            if comment.start_time == game_time:
+                return comment.text
+        return None
+    
     def show_times(self, head: Optional[int] = None):
         head = head if head else len(self.comments)
         for s in self.comments[:head]:
@@ -149,6 +155,7 @@ class VideoData:
         # データを読み込み
         self.player_df = pd.read_csv(player_csv)
         assert set(self.player_df.columns) >= {"game", "half", "time", "team", "name"}
+        
 
     def get_data(self, game,  half: int, game_time: int) -> dict[str, str]:
         # 2秒前から2秒後の間に映っている選手名/teamを取得
@@ -229,23 +236,28 @@ def run(args: Arguments):
     for spotting_data in spotting_data_list.spottings:
         spot_time_set.add((spotting_data.half, spotting_data.game_time))
     
-    frame_time_set = set()
-    for i, data in video_data.player_df.iterrows():
-        frame_time_set.add((data["half"], data["time"]))
-    
-    # logger.info(f"{spot_time_set=}")
-    # logger.info(f"{frame_time_set=}")
-    # logger.info(f"{(spot_time_set & frame_time_set)=}")
-    
+    if video_data is not None:
+        frame_time_set = set()
+        for i, data in video_data.player_df.iterrows():
+            frame_time_set.add((data["half"], data["time"]))
+
     for spotting_data in spotting_data_list.spottings:
         filtered_comment_list = CommentDataList.filter_by_half_and_time(
             comment_data_list, 
             spotting_data.half, 
             spotting_data.game_time
         )
-        player_and_teams = video_data.get_data(args.game, spotting_data.half, spotting_data.game_time)
-        query = build_query(comments=filtered_comment_list, video_data=player_and_teams)
+        
+        query_args = {"comments": filtered_comment_list, "video_data": None}
+        if video_data is not None:
+            query_args["video_data"] = video_data.get_data(args.game, spotting_data.half, spotting_data.game_time)
+        
+        query = build_query(**query_args)
         spotting_data.query = query
+        
+        # reference があれば追加
+        if ref := comment_data_list.get_comment_by_time(spotting_data.game_time):
+            spotting_data.reference = ref
         result_spottings.append(spotting_data)
 
     result_spottings = SpottingDataList(result_spottings)

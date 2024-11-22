@@ -49,12 +49,10 @@ vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings
 
 # Retrieve and generate using the relevant snippets of the blog.
 retriever = vectorstore.as_retriever()
-prompt = PromptTemplate.from_template(template) # Input variables: {"context": "filler context", "question": "filler question"}
-
+prompt = PromptTemplate.from_template(template)
 
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
-
 
 rag_chain = (
     {"context": retriever | format_docs, "question": RunnablePassthrough()}

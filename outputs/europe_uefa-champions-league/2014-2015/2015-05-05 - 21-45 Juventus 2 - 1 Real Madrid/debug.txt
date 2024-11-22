@@ -1,0 +1,483 @@
+game:  europe_uefa-champions-league/2014-2015/2015-05-05 - 21-45 Juventus 2 - 1 Real Madrid
+
+time=> 1 - 00:00
+previous-comments=> 
+reference=> One is not a bad result actually against reality, but it's important for them to not concede any more goals This is the most important thing.
+system_output=> And here we have a fun fact for you: The team playing today, Nice, had a period of continued success from 2010 to 2013, making them a formidable opponent on the field. Let's see if they can bring some of that legacy to today's match.
+
+time=> 1 - 00:09
+previous-comments=> are the first Italian semi-finalists in the Champions League in five years since Jose Mourinho's Inter won the competition in 2010
+reference=> But for Juve themselves, it's their first semi-final since 2003 when they beat Real Madrid at this stage only to lose to Carlo Ancelotti's AC Milan in the final.
+system_output=> Diego Milito played a crucial role in Inter's Champions League victory in 2010, becoming the third Macedonian football player to win the championship.
+
+time=> 1 - 00:22
+previous-comments=> But for Juve themselves, it's their first semi-final since 2003 when they beat Real Madrid at this stage only to lose to Carlo Ancelotti's AC Milan in the final.
+reference=> yeah is a huge night for the Italian team effectively marks their return to the top table of European football where they were so used to dining and years gone by interesting to see their approach here tonight Juventus is clearly they want to take the initiative
+system_output=> And speaking of Juventus, they have won the Coppa Italia 10 times, with their most recent victory coming in 2015 against Lazio.
+
+time=> 1 - 00:42
+previous-comments=> 
+reference=> in front of their own fans but the the target is just to make sure you're still in this tight going to madrid against what is clearly the favorites and here's an early opportunity for vidal who goes down it was a clearance from cassius that had put real madrid under pressure in the first place
+system_output=> And here we have a fun fact for you: The team playing today, Nice, had a period of continued success from 2010 to 2013, making them a formidable opponent on the field. Let's see if they can bring some of that legacy to today's match.
+
+time=> 1 - 01:16
+previous-comments=> Found a lot of space there didn't he that's a lack of concentration Not just some Casillas, but from one or two teammates as well Got closed down quickly though
+reference=> Arturo Vidal was the man who delivered the league title with a header against Sampdoria at the weekend.
+system_output=> Casillas, known for his reliable distribution with both his hands and feet, has been a key factor in Spain's ability to concede few goals throughout his career.
+
+time=> 1 - 01:27
+previous-comments=> Arturo Vidal was the man who delivered the league title with a header against Sampdoria at the weekend. But no time for celebration of that.
+reference=> It is proving their worth in Europe that's the objective now.
+system_output=> Arturo Vidal was part of the Chilean national team that reached the final of the 2017 FIFA Confederations Cup, ultimately losing to Germany 1-0.
+
+time=> 1 - 01:43
+previous-comments=> Arturo Vidal was the man who delivered the league title with a header against Sampdoria at the weekend. But no time for celebration of that. It is proving their worth in Europe that's the objective now. Vidal who gives away the free kick.
+reference=> this was the moment they do well to close him down Sergio Ramos who got a couple of goals in last season's semi-final
+system_output=> Vidal has won eight straight league titles in his career, showcasing his consistency and success at the highest level of club football.
+
+time=> 1 - 02:06
+previous-comments=> But no time for celebration of that. It is proving their worth in Europe that's the objective now. Vidal who gives away the free kick. this was the moment they do well to close him down Sergio Ramos who got a couple of goals in last season's semi-final
+reference=> James Rodriguez who takes the kick and it's caught by Gianluigi Buffon the two goalkeepers the only survivors from the semi-final between these two 12 years ago and Buffon saved a key penalty
+system_output=> Vidal has a history of scoring crucial goals, such as in the 2017 FIFA Confederations Cup and the 2016 DFL-Supercup match.
+
+time=> 1 - 02:23
+previous-comments=> James Rodriguez who takes the kick and it's caught by Gianluigi Buffon the two goalkeepers the only survivors from the semi-final between these two 12 years ago and Buffon saved a key penalty
+reference=> in that match from Luis Figo that helped Juventus to progress to the final yeah wonder whether they might go with the back three as Allegri has done on several occasions but a back four tonight for Juventus huge experience in the middle there with Chiellini and Bonucci
+system_output=> And speaking of Buffon's penalty-saving skills, he has a history of success in shootouts, such as saving three penalties in Italy's victory over Uruguay in the third-place match of a previous tournament.
+
+time=> 1 - 04:53
+previous-comments=> This is Toni Kroos. Varane. Marcelo. Vidal. Tevez took it on the turn now Morata was started at a really nice tempo this match both sides see plenty of the ball yellow losing out to Gareth Bale who's got Ronaldo as an option and Marchisio has
+reference=> Ended up seeing a free kill and Bonucci takes a yellow card for that challenge.
+system_output=> Marchisio scored in his second consecutive league game and surpassed his personal season record of four goals by scoring the last goal in a 3-0 win over Palermo.
+
+time=> 1 - 05:12
+previous-comments=> Martin Atkinson clearly feeling it was a deliberate attempt to stop the counter. I think it's an honest attempt at the ball. Looking at it, but Bale's feet a little too quick for him.
+reference=> but this is dangerous territory Ronaldo nowhere near as successful from his free kicks this season as he has been but he'll be taking this one you can bet your life
+system_output=> Fer's controversial goal disallowed due to lack of sportsmanship, causing a heated reaction from Cardiff players.
+
+time=> 1 - 05:29
+previous-comments=> Looking at it, but Bale's feet a little too quick for him. but this is dangerous territory Ronaldo nowhere near as successful from his free kicks this season as he has been but he'll be taking this one you can bet your life
+reference=> and Cellotti hoping that his talisman Ronaldo can offer early hope here for Real Madrid Bale an alternative option but normally from this kind of range there's only one man
+system_output=> Well, Gareth Bale has certainly made a name for himself with his free-kick abilities, scoring directly from two free kicks in his last game and showcasing his powerful strikes from outside the penalty box.
+
+time=> 1 - 05:54
+previous-comments=> and Cellotti hoping that his talisman Ronaldo can offer early hope here for Real Madrid Bale an alternative option but normally from this kind of range there's only one man Ronaldo strikes it against the wall.
+reference=> There's a good wall.
+system_output=> Gareth Bale has been deployed as a winger on the right flank for Real Madrid, allowing him to cut inside and strike on goal with his stronger left foot.
+
+time=> 1 - 06:15
+previous-comments=> Ronaldo strikes it against the wall. There's a good wall. A little jump allowed the defender to get his head on it. Here's the Swiss international, Licksteiner.
+reference=> towards Morata we've got the better of Pepe and goes for the lob and Casillas in a position to take it well for a second there it looked like it was going to float over Casillas but they have looked uncertain at the back early on Real Madrid
+system_output=> Ronaldo's incredible hat-trick against Manchester United in the Champions League quarter-final at Old Trafford knocked the English team out of the competition.
+
+time=> 1 - 06:35
+previous-comments=> towards Morata we've got the better of Pepe and goes for the lob and Casillas in a position to take it well for a second there it looked like it was going to float over Casillas but they have looked uncertain at the back early on Real Madrid
+reference=> they haven't got really I mean Tevez is no slouch but Morata's not going to run away from those two centre-backs I don't think he hasn't got that kind of pace
+system_output=> Casillas won the IFFHS Best Goalkeeper Award for the fifth consecutive time during the 2012-13 season, making him the only goalkeeper in history to achieve this feat.
+
+time=> 1 - 06:47
+previous-comments=> they haven't got really I mean Tevez is no slouch but Morata's not going to run away from those two centre-backs I don't think he hasn't got that kind of pace
+reference=> They haven't conceded an away goal in the Champions League Real Madrid since the very first group phase match against Ludogoretz Ramos who gave the ball away though then Here's Pirlo, now Chiellini to Bonucci
+system_output=> Alvaro Morata has shown his ability to end goal droughts and maintain momentum for Chelsea in past matches.
+
+time=> 1 - 07:57
+previous-comments=> Here's Marchisio Chiellini Licksteiner Vidal Pirlo Chiellini Now Evra Arturo Vidal. This is Pirlo. It's composed play this from the hosts. Licksteiner. Back to him from Marchisio. And Tevez has found the gap and it's turned in by Morata.
+reference=> Alvaro Morata comes back to haunt his former club and as that came out from Casillas he was in the right place to turn it home he doesn't celebrate but there's plenty of cause for celebration here for Juventus with that early breakthrough
+system_output=> Vidal, Marchisio, and Pirlo contributed almost a third of Juventus's goals in the 2011-2012 season, showcasing their ability to interchange between defensive and attacking positions effectively.
+
+time=> 1 - 08:13
+previous-comments=> Alvaro Morata comes back to haunt his former club and as that came out from Casillas he was in the right place to turn it home he doesn't celebrate but there's plenty of cause for celebration here for Juventus with that early breakthrough
+reference=> well that's the channel that they've been causing problems early on here down that right-hand side and marcello just haven't got it together look at the size of the gap there marcello's gotta tuck in they're appealing for offside but it wasn't it certainly wasn't
+system_output=> Alvaro Morata has been a key player for Juventus, scoring important goals in both Serie A and the UEFA Champions League since his return to the club in September 2020.
+
+time=> 1 - 08:32
+previous-comments=> 
+reference=> and it reflects the good positive start that they've enjoyed to this match Juve it's a good enough strike that from Tevez to ask the question of Casillas and he cannot come up with the answer
+system_output=> And here we have a fun fact for you: The team playing today, Nice, had a period of continued success from 2010 to 2013, making them a formidable opponent on the field. Let's see if they can channel that legacy in today's match.
+
+time=> 1 - 08:59
+previous-comments=> and it reflects the good positive start that they've enjoyed to this match Juve it's a good enough strike that from Tevez to ask the question of Casillas and he cannot come up with the answer
+reference=> first away goal in the Champions League that Real Madrid have conceded in over seven and a half hours of football Carlo Ancelotti said in the build-up to this game he had no regrets about letting
+system_output=> Tevez was dubbed the "M-V-P" midfield alongside Vidal and Pirlo during the 2011-2012 season, scoring multiple goals in key matches for Juventus.
+
+time=> 1 - 09:18
+previous-comments=> first away goal in the Champions League that Real Madrid have conceded in over seven and a half hours of football Carlo Ancelotti said in the build-up to this game he had no regrets about letting
+reference=> Alvaro Morata who was a finalist with Real Madrid last season go to Juventus I wonder if he's having a rethink now that's his first season really as a as a regular sounds like he's enjoyed it and he would have enjoyed that moment even though he didn't celebrate it
+system_output=> Real Madrid's Sergio Ramos equaled Gerard Piqué and former teammate Iván Helguera as the second highest scoring defenders in Champions League history with his 15th goal in the competition.
+
+time=> 1 - 10:00
+previous-comments=> Isco. Now Marcelo. Beyond the reach of James with a cross. Very shaky start for Mancelotti's team defensively.
+reference=> A huge gap there between centre half and full back.
+system_output=> Marcelo's attacking flair and defensive skills were on full display in the 2010-11 season, where he scored his first-ever Champions League goal and assisted in a crucial win against Lyon.
+
+time=> 1 - 11:51
+previous-comments=> Here's Isco. One of the two closing him down. Marcelo. Isco. It's Toni Kroos who has a go. And Buffon has to help that one round.
+reference=> For someone with such a good shot from distance, Toni Kroos doesn't score enough goals, but he's testing Buffon here.
+system_output=> Isco is known for his natural ability to pick out an inch-perfect pass, dribble effortlessly through challenges, and direct his side's performances.
+
+time=> 1 - 12:44
+previous-comments=> For someone with such a good shot from distance, Toni Kroos doesn't score enough goals, but he's testing Buffon here. looks on target cross with the corner cleared by Vidal Here's Isco. Close. Let's go again. In from hummus.
+reference=> the moment again through the legs of her and making it difficult for to see us that the finish certainly wasn't though as simple as it comes from 12th goal of the season for the former Real Madrid man
+system_output=> Buffon has a strong record in penalty shootouts, saving three penalties in Italy's victory over Uruguay in the third-place match.
+
+time=> 1 - 13:05
+previous-comments=> Here's Isco. Close. Let's go again. In from hummus. the moment again through the legs of her and making it difficult for to see us that the finish certainly wasn't though as simple as it comes from 12th goal of the season for the former Real Madrid man
+reference=> the perfect start for max allegri who's won the title in his first season in charge here did the same during his spell as coach at milan they weren't keen on him when he first arrived were they no he was a very unpopular successor to antonio conte
+system_output=> Isco has a natural ability to pick out an inch-perfect pass and dribble effortlessly through challenges, making him a key creative force on the field.
+
+time=> 1 - 14:56
+previous-comments=> Certainly got at that. Real Madrid back four. straight away with a lot of aggression and intent hello on by storaro now carvajal On by James This is Isco Marcelo Isco with Ramos up to his right has a go anyway Well, this Juventus team knows how to defend.
+reference=> I mentioned the experience, the quality of Chiellini and Bonucci.
+system_output=> Marcelo, known for his attacking flair and defensive skills, has been a key player for Real Madrid in previous seasons.
+
+time=> 1 - 15:02
+previous-comments=> On by James This is Isco Marcelo Isco with Ramos up to his right has a go anyway Well, this Juventus team knows how to defend. I mentioned the experience, the quality of Chiellini and Bonucci.
+reference=> Huge experience, of course, with Buffon, Patrice Evra, Nick Steiner as well.
+system_output=> And speaking of defensive prowess, both Chiellini and Bonucci have been part of Juventus' legendary defensive trio, known as the BBC, which has been considered one of the greatest in history.
+
+time=> 1 - 15:16
+previous-comments=> Huge experience, of course, with Buffon, Patrice Evra, Nick Steiner as well. So, they're going to make it difficult for the visitors here. You can bet your life they won't be giving any presents away.
+reference=> they've grown into this competition as it's gone on juventus they're the only one of the semi-finalists not to have won their group they were three points behind the group winners atletico they lost there and against olympiacos two of their three victories in the group were against malmo
+system_output=> One concise fact directly relevant to the current soccer match is that Patrice Evra started his second consecutive match for France in the final group stage match against Italy, where they lost 2-0 and were eliminated from the competition in the first round.
+
+time=> 1 - 15:32
+previous-comments=> 
+reference=> certainly against Dortmund and against Monaco they've earned their spurs and they haven't let in a goal in the last three games in the competition here's Pepe now Dani Carvajal
+system_output=> And here we have a fun fact for you: The team playing today, Nice, had a period of continued success from 2010 to 2013, making them a formidable opponent on the field. Let's see if they can bring some of that legacy to today's match.
+
+time=> 1 - 20:46
+previous-comments=> 
+reference=> Real Madrid destroyed the then holders Bayern Munich in last season's semi-final Only too well just how difficult it is to retain this crown.
+system_output=> And here we have the team from Nice, known for their continued success from 2010 to 2013. Their legacy in the sport is truly impressive.
+
+time=> 1 - 20:57
+previous-comments=> Real Madrid destroyed the then holders Bayern Munich in last season's semi-final Only too well just how difficult it is to retain this crown.
+reference=> It's never been done in the Champions League era and
+system_output=> In the 2014 Champions League semi-final, Real Madrid defeated Bayern Munich 4-0 in the second leg, advancing to the final with a 5-0 aggregate win.
+
+time=> 1 - 21:03
+previous-comments=> Real Madrid destroyed the then holders Bayern Munich in last season's semi-final Only too well just how difficult it is to retain this crown. It's never been done in the Champions League era and
+reference=> and of course they've got their La Liga title challenge to think of too which complicates matters unlike Juventus there's two points behind Barcelona with three games left they did have a tough old game at Sevilla at the weekend
+system_output=> Sergio Ramos of Real Madrid holds the La Liga red card record, adding to his reputation as a tough defender on the field.
+
+time=> 1 - 21:23
+previous-comments=> and of course they've got their La Liga title challenge to think of too which complicates matters unlike Juventus there's two points behind Barcelona with three games left they did have a tough old game at Sevilla at the weekend
+reference=> I know one or two didn't play in that match but a lot of them out here tonight did and to put a lot into it physically to get the 3-2 win they've been chased down and harried all the time by this Juventus team who've rightly got a bit of a swagger about them with the
+system_output=> Barcelona clinched the 2022-23 La Liga title after defeating rivals Espanyol 4-2, marking their first league title since the 2018-19 season.
+
+time=> 1 - 21:41
+previous-comments=> 
+reference=> Of course he was the coach of Juventus when they let a 2-0 lead slip against Manchester United in the semi-finals of this competition when United were on their way to winning the treble.
+system_output=> And here we have a fun fact for you: Did you know that the team playing today, Nice, had a period of continued success from 2010 to 2013? Let's see if they can channel some of that legacy into today's match.
+
+time=> 1 - 23:15
+previous-comments=> Couldn't get it on target. Talk about offering a target. It's a fantastic run and equally good pass from Isco. They try and hold the line. Juve at the back there.
+reference=> Ronaldo has scored in the semi-finals for the last three years running.
+system_output=> One of the top assist-makers for Juventus in the league this season was able to make attacking runs and provide crucial crosses from the right flank.
+
+time=> 1 - 23:18
+previous-comments=> Couldn't get it on target. Talk about offering a target. It's a fantastic run and equally good pass from Isco. They try and hold the line. Juve at the back there. Ronaldo has scored in the semi-finals for the last three years running.
+reference=> This is Real Madrid's fifth consecutive appearance at this stage of the competition.
+system_output=> Ronaldo has scored in the semi-finals for the last three years running.
+
+time=> 1 - 23:26
+previous-comments=> They try and hold the line. Juve at the back there. Ronaldo has scored in the semi-finals for the last three years running. This is Real Madrid's fifth consecutive appearance at this stage of the competition.
+reference=> It equals a club record.
+system_output=> And speaking of records, Ronaldo has finished as the top scorer of the Champions League for the sixth consecutive season with 15 goals.
+
+time=> 1 - 23:27
+previous-comments=> They try and hold the line. Juve at the back there. Ronaldo has scored in the semi-finals for the last three years running. This is Real Madrid's fifth consecutive appearance at this stage of the competition. It equals a club record.
+reference=> They also appeared in the first five semi-finals of the European Cup.
+system_output=> Juventus secured their sixth consecutive Serie A title against Crotone on May 21, 2017, setting an all-time record of successive triumphs in the competition.
+
+time=> 1 - 23:32
+previous-comments=> Ronaldo has scored in the semi-finals for the last three years running. This is Real Madrid's fifth consecutive appearance at this stage of the competition. It equals a club record. They also appeared in the first five semi-finals of the European Cup.
+reference=> Still one short of Barcelona's record that ended last year.
+system_output=> Ramos has scored in two different Champions League Finals, joining an elite group of players including Raúl, Samuel Eto'o, Lionel Messi, and Cristiano Ronaldo.
+
+time=> 1 - 24:19
+previous-comments=> And Licksteiner has got away from Marcelo and from Isco as well. But they've got to sort out that side of the defense. Marcelo has been less than effective defensively early on here. And that's the avenue where they're constantly getting some joy.
+reference=> Marcelo, who was absent through injury in last season's semi-final, though he did return to score in the final itself.
+system_output=> One concise fact relevant to the current match is that Marcelo has shown versatility by playing as a winger in addition to his natural position as a left back.
+
+time=> 1 - 24:37
+previous-comments=> And that's the avenue where they're constantly getting some joy. Marcelo, who was absent through injury in last season's semi-final, though he did return to score in the final itself. Here's Pepe.
+reference=> Now Toni Kroos who was part of the Bayern team that was destroyed by Real Madrid in last season's semi.
+system_output=> And speaking of injuries, Pepe's career has been plagued by them, including a ten-match ban in 2009 for an incident with Getafe's Javier Casquero.
+
+time=> 1 - 26:05
+previous-comments=> Tony Kroos Isco James Rodriguez Carvajal Varane Marcelo. Ramos. Isco.
+reference=> Here's Carvajal.
+system_output=> Isco has been described as Real Madrid's most impressive player by Marcelo.
+
+time=> 1 - 27:04
+previous-comments=> you really wouldn't expect Ronaldo to get that kind of space in the box but he did and he wasn't gonna miss that
+reference=> Well, two of the goals it is hat-trick against Sevilla at the weekend where headers and heads he wins again Cristiano Ronaldo goal number 54 of a remarkably prolific season again.
+system_output=> Did you know that Ronaldo's header in this match was only the second headed goal of his entire career? Even Mourinho was surprised by it!
+
+time=> 1 - 31:25
+previous-comments=> Here's Vidal. Now Lichsteiner. Tevez. Here's Evra. Pirlo. Pedal Pirlo
+reference=> Carlo Ancelotti who managed Pirlo at Milan in a very successful partnership.
+system_output=> Vidal has won the Scudetti in all four of his seasons at Juventus and was integral in reaching the final of the UEFA Champions League in 2015.
+
+time=> 1 - 31:36
+previous-comments=> Here's Vidal. Now Lichsteiner. Tevez. Here's Evra. Pirlo. Pedal Pirlo Carlo Ancelotti who managed Pirlo at Milan in a very successful partnership.
+reference=> Pirlo hoping to sign off his Italian career with the third Champions League success.
+system_output=> Andrea Pirlo was deployed as a deep-lying playmaker in front of the defense under manager Carlo Ancelotti at Milan, leading to notable domestic and international success during his time with the club.
+
+time=> 1 - 33:51
+previous-comments=> Tevez goes for it. Kept in by Marcelo. Here's Isco as Real Madrid look to respond. Marcelo ends up giving it away to Arturo Vidal. You'd expect it better there on the counter. And now it's Juventus themselves countering. Tevez. Marchisio. Ops to shoot.
+reference=> Casillas asking why he wasn't closed down because Marchisio is just one of several that can hit them from those kind of distances.
+system_output=> Tevez ended the Serie A season with 20 goals, helping Juventus to a fourth consecutive Scudetto.
+
+time=> 1 - 35:36
+previous-comments=> wide of Carvajal but he got a touch to give Madrid the throw in now James here's Marcelo Isco and again Come back by Lichsteiner for Marchisio, but. Let's go endeavoring to try and retrieve it.
+reference=> Five of the last six years including the last three in a row the teams that have reached the final did play the home leg of their semi-final first They give you vent to some room for encouragement and
+system_output=> Marcelo's successful campaign in the Champions League earned him a starting spot in UEFA's starting XI.
+
+time=> 1 - 39:34
+previous-comments=> Here's the dial. Everett full stretch. Fisco. Ronaldo.
+reference=> Handball by the referee.
+system_output=> And here we have Renato Neto, who was officially signed by Everton back in 2011. A key player to watch in today's match.
+
+time=> 1 - 41:07
+previous-comments=> On the stretch, but even so. What a chance. This goes been excellent this first half and he thinks he set up their second goal here. So close to a second and how James would have deserved it.
+reference=> It was his moment of quality that set up the equalizing goal for Cristiano Ronaldo with his head.
+system_output=> James has been in top form, assisting two goals in a row and scoring a stunning volley from a 30-yard free kick in a World Cup qualifying match against Chile.
+
+time=> 1 - 43:46
+previous-comments=> Evra Storaro They do depend on those two fullbacks to give them some width Juventus with that system that they adopt a quarter narrow midfield and Here's Varane under pressure from Morata. That wasn't right in the area that was just inside. Look to foul.
+reference=> Here's Pirlo.
+system_output=> Evra has proven to be a goal-scoring threat from corners, with three headed goals in 13 games during the 2012-13 season.
+
+time=> 2 - 01:04
+previous-comments=> Tony Kroos Ramos his third start in four matches in a midfield role now Carvajal Ramos closed down by Tevez who caught him there's a silly one from Carlos Tevez there
+reference=> but they want to be aggressive try and hunt down the ball in the way that they did in the first half successfully the yellow card then for Carlos Tevez
+system_output=> In the 2016 UEFA Super Cup, Ramos scored the equalizing goal in the 93rd minute, leading Real Madrid to a 3-2 victory and earning himself the man of the match title.
+
+time=> 2 - 01:21
+previous-comments=> but they want to be aggressive try and hunt down the ball in the way that they did in the first half successfully the yellow card then for Carlos Tevez
+reference=> Juventus will feel that they need another goal here to take to the Bernabeu Incidentally with the yellow cards there is an amnesty now in place so that all those accrued previously in the competition are wiped out
+system_output=> Carlos Tevez is known for his aggressive style of play, which includes hunting down the ball and winning it back to start attacking plays.
+
+time=> 2 - 01:40
+previous-comments=> Juventus will feel that they need another goal here to take to the Bernabeu Incidentally with the yellow cards there is an amnesty now in place so that all those accrued previously in the competition are wiped out
+reference=> trying to avoid the situation Real Madrid found themselves in last year when Xabi Alonso was suspended from the final all played through the middle and Tevez who's just been booked was the man there for Juve trying to get on the end of it yeah they closed the gap quickly there
+system_output=> Buffon's absence in the victorious final against Milan due to a yellow card received in a previous match is a significant loss for Juventus in today's game.
+
+time=> 2 - 02:01
+previous-comments=> 
+reference=> Van and Pepe in the way that they didn't early on in this match Vidal pushes it on to Carlos Tevez and it's straight at Casillas well he's the man most likely for Juventus Sevilla's top scorer a man in form
+system_output=> And here we have a fun fact for you: The team playing today, Nice, had a period of continued success from 2010 to 2013, making them a formidable opponent on the field. Let's see if they can channel that legacy in today's match.
+
+time=> 2 - 02:20
+previous-comments=> Van and Pepe in the way that they didn't early on in this match Vidal pushes it on to Carlos Tevez and it's straight at Casillas well he's the man most likely for Juventus Sevilla's top scorer a man in form
+reference=> One short of his 50th goal for Juventus now Carlos Tevez.
+system_output=> Pepe's aggressive behavior has caused him to receive multiple bans throughout his career, impacting his availability for crucial matches.
+
+time=> 2 - 02:25
+previous-comments=> One short of his 50th goal for Juventus now Carlos Tevez.
+reference=> He's already scored as many goals in the Champions League this season as he had in all five of his previous campaigns put together.
+system_output=> And there it is! Carlos Tevez scored his 50th goal for Juventus in the first leg of the UEFA Champions League semi-final against Real Madrid.
+
+time=> 2 - 03:49
+previous-comments=> Felt with it calmly enough Here's Pepe
+reference=> Ramos under pressure from Pirlo who gives away the free kick this time it's Doraro who gives away the free kick and Ramos less than enamoured with that challenge
+system_output=> Pepe formed a formidable center back partnership with Sergio Ramos in the 2011-12 season, making 29 appearances in La Liga as Real Madrid claimed their 32nd league title.
+
+time=> 2 - 07:01
+previous-comments=> which is close. Here's Chiellini. Evra. It's Carvajal who's... giving away the free kick, trying to help Storaro back to his feet. He steamed in to try and win the ball and Storaro, he saw the challenge coming.
+reference=> It's been a few niggly fouls though at the start of the second half, it hasn't had the free-flowing aspect to it that the first did.
+system_output=> Chiellini famously neutralized the threat of the Spanish attacking duo of David Villa and Fernando Torres in the quarter-finals of UEFA Euro 2008.
+
+time=> 2 - 08:26
+previous-comments=> If he had any clear idea of what he wanted to do with it good first time laugh by the strike partner Murata Here's pillow Evra Murata Cleared by James. And here's Marcelo. This go.
+reference=> There is touch from Licksteiner taking him down and giving Real Madrid the free kick.
+system_output=> One concise fact for the current match: Evra scored his first goal for Monaco in a 2-1 victory against Rennes.
+
+time=> 2 - 09:09
+previous-comments=> The arched eyebrow, the familiar expression of Carlo Ancelotti, one time Juventus coach.
+reference=> This free kick too far out even for Ronaldo to try his luck.
+system_output=> Andrea Pirlo, known as "The Metronome," played a crucial role in Juventus' success during his time with the club.
+
+time=> 2 - 09:34
+previous-comments=> The arched eyebrow, the familiar expression of Carlo Ancelotti, one time Juventus coach. This free kick too far out even for Ronaldo to try his luck.
+reference=> Gross with the kick.
+system_output=> Did you know that Andrea Pirlo has scored the highest number of free kicks in Serie A, alongside Siniša Mihajlović?
+
+time=> 2 - 09:53
+previous-comments=> The arched eyebrow, the familiar expression of Carlo Ancelotti, one time Juventus coach. This free kick too far out even for Ronaldo to try his luck. Gross with the kick. Helped away by Benucci.
+reference=> they are formidable in the air madrid as well as that man plenty more besides that can attack the ball with real aggression cross with the corner
+system_output=> Mandžukić's bicycle kick goal against Real Madrid won the 2016–17 UEFA Goal of the Season award.
+
+time=> 2 - 10:39
+previous-comments=> 
+reference=> Well we've had several incidents in this second half where there's been a little bit of contact and the player involved has not hesitated to go down.
+system_output=> And here we have a fun fact for you: Did you know that the team playing today, Nice, had a period of continued success from 2010 to 2013? It seems like they are looking to recreate that winning legacy on the field today.
+
+time=> 2 - 11:15
+previous-comments=> I think Martin Atkinson, from a distance, has made the right challenge and the right decision, I beg your pardon. I don't think he got any help from his assistant either, he was really quick.
+reference=> to blow his whistle to point to the spot despite a penalty being given away to Juventus player who's been booked Arturo Vidal had too much to say for himself and it looks as though Marcelo's now followed him into the book presumably for protesting the decision
+system_output=> One concise fact for the current match: Jack Grealish is the most fouled player in the league, leading to more penalties and free kicks for his team.
+
+time=> 2 - 11:42
+previous-comments=> But what a huge moment in this tie.
+reference=> Carlos Tevez looking for his 50th goal for Juventus, facing up to Ike Casillas.
+system_output=> Chelsea's incredible comeback against AC Milan in the 2005 Champions League final is one of the greatest in the competition's history.
+
+time=> 2 - 12:02
+previous-comments=> But what a huge moment in this tie. Carlos Tevez looking for his 50th goal for Juventus, facing up to Ike Casillas. Tevez restores the Juventus lead.
+reference=> He brings up his half century of goals for the club and has them back on the road to the final in Berlin.
+system_output=> And there it is, Tevez scored his 50th goal for Juventus in the first leg of the UEFA Champions League semi-final against Real Madrid.
+
+time=> 2 - 12:11
+previous-comments=> But what a huge moment in this tie. Carlos Tevez looking for his 50th goal for Juventus, facing up to Ike Casillas. Tevez restores the Juventus lead. He brings up his half century of goals for the club and has them back on the road to the final in Berlin.
+reference=> but he's a player of huge experience and as i mentioned before the player in great form how important might that goal be i said they would have felt they really did need a second to take to the bernabeu if they can
+system_output=> And with that penalty goal, Tevez secured his 50th goal for Juventus, proving once again his importance to the team in crucial moments.
+
+time=> 2 - 12:51
+previous-comments=> retain this lead he gambles on cassius dive in one way and his gamble pays off he couldn't look he knew from the reaction where that ball had ended up
+reference=> Macias could do nothing about it and the champions are back under pressure and trailing again here the Juventus front two both registering Tevez a former Manchester United teammate of this man Cristiano Ronaldo
+system_output=> One of the players on the field today, known for his leadership and playing style, has been praised for his famous lobbed goals and his commitment to his club throughout his career.
+
+time=> 2 - 13:09
+previous-comments=> Macias could do nothing about it and the champions are back under pressure and trailing again here the Juventus front two both registering Tevez a former Manchester United teammate of this man Cristiano Ronaldo
+reference=> together when they won the Champions League back in 2008 when Tevez actually scored from the spot in the shootout and it's another big penalty tonight from Carlos Tevez that is to Juventus' advantage it's a funny one that because it was two against two and if Marcelo hadn't have tripped
+system_output=> In the previous season, Tevez ended the Serie A season with 20 goals, helping Juventus to a fourth consecutive Scudetto.
+
+time=> 2 - 13:28
+previous-comments=> 
+reference=> Morata the dynamics of it might have been a bit different in the end Tevez had no choice but to take on Carvajal and I bet he's glad he did Ramos
+system_output=> And here we have a fun fact for you: The team playing today, Nice, had a period of continued success from 2010 to 2013, making them a formidable opponent on the field. Let's see if they can bring some of that legacy to today's match.
+
+time=> 2 - 18:02
+previous-comments=> He did take a chance though, Carvajal. He did have arms on Vidal. So here comes the change as Real Madrid send for the man who was the hero of their emergence from the quarterfinal, Javier Hernandez coming on for Isco.
+reference=> Hernandez straight into it Looks for bail driven across by Ramos and Ronaldo couldn't have been very far from applying a touch to that Well, they all looked across at the linesman
+system_output=> Carvajal has been a key player for Real Madrid, contributing to their Champions League triumphs and league title wins.
+
+time=> 2 - 18:20
+previous-comments=> Hernandez straight into it Looks for bail driven across by Ramos and Ronaldo couldn't have been very far from applying a touch to that Well, they all looked across at the linesman
+reference=> thinking the flag might have gone up here it shouldn't have oh dear oh dear hair's breath away from getting a good contact i don't know now that uh benucci was playing them on
+system_output=> In the delayed 2020 Copa del Rey final, Martínez had a major role in proceedings, coming close to scoring with a long-range shot and conceding a penalty that was ultimately scored, leading to Real Sociedad winning the trophy with a 1-0 scoreline.
+
+time=> 2 - 20:10
+previous-comments=> it would be a fantastic result to achieve this 2-1 against the reigning champions they take it all day long and for Malegri's substitution you suspect that he would Pepe with a really loose ball Here's James Ronaldo It's Toni Kroos.
+reference=> Blocked by Vidal.
+system_output=> Ronaldo's hat-trick against Manchester United knocked them out of the Champions League, showcasing his unstoppable talent on the big stage.
+
+time=> 2 - 20:53
+previous-comments=> Lifted across by Bale just beyond the reach of the stretching Cristiano Ronaldo. Bayer will be drifting onto this right hand side a bit more now in this revised system Chiellini taking no prisoners getting a cut on the eye for his troubles
+reference=> Chiellini was sent off in the match last season for an elbowing offense against Cristiano Ronaldo, but he's the wounded one here.
+system_output=> Bale's impressive goal-scoring record and ability to strike from distance could be a key factor in today's match.
+
+time=> 2 - 21:19
+previous-comments=> Yeah, they'll be happy to take the time here as well. try and take the heat out of the occasion out of the Real Madrid fight back
+reference=> although Ancelotti who developed a reputation as bridesmaid rather than bride in his time at Juventus in a couple of seasons they finished runners up giving away a nine-point lead on one occasion
+system_output=> Real Madrid has a history of dominating their arch-rivals Barcelona, as seen in their 4-1 victory in 2008 with Robben scoring a crucial goal.
+
+time=> 2 - 21:41
+previous-comments=> although Ancelotti who developed a reputation as bridesmaid rather than bride in his time at Juventus in a couple of seasons they finished runners up giving away a nine-point lead on one occasion
+reference=> Of course he was the coach of Juventus when they let a 2-0 lead slip against Manchester United in the semi-finals of this competition when United were on their way to winning the treble.
+system_output=> In the most recent Serie A titles were stripped and the squad were relegated to Serie B and penalised with a point deduction, rumors spread that Buffon would be placed on the transfer market. Buffon elected to remain with Juventus, despite the team's relegation, a decision which made him extremely popular with the Juventus fans.
+
+time=> 2 - 22:24
+previous-comments=> He is that type of defender, Chiellini. He suits the bandage round the head, I think.
+reference=> Here's Pirlo.
+system_output=> Chiellini's physicality and aggression as a defender, as well as his trademark goal celebration, which involved him beating his chest, earned him the nickname "King Kong".
+
+time=> 2 - 23:34
+previous-comments=> and shorts and t-shirt just get him a new wardrobe Vidal Here's Marcelo.
+reference=> Real Madrid made hay at the weekend against a severe team reduced in number by a player who'd gone off injured and spent nine minutes off the pitch before he returned, by which time Ronaldo had helped himself to a couple of goals.
+system_output=> Marcelo, the left-back for Fluminense, has made 30 appearances and scored 6 goals for the team from 2005 to 2007.
+
+time=> 2 - 23:51
+previous-comments=> Ramos' passing hasn't been quite on tonight.
+reference=> One or two crossfield balls, not finding the mark.
+system_output=> Ramos has a history of scoring crucial late goals for Real Madrid, including in big matches like the UEFA Super Cup and El Clásico.
+
+time=> 2 - 23:57
+previous-comments=> Ramos' passing hasn't been quite on tonight. One or two crossfield balls, not finding the mark.
+reference=> Marcelo has been less than effective defensively early on here.
+system_output=> Casillas's distribution with both his hands and feet has generally been reliable throughout his career, making him a key player in setting up plays from the back.
+
+time=> 2 - 25:40
+previous-comments=> 
+reference=> Pre kick conceded by Patrice Evra.
+system_output=> And here we have a fun fact for you: The team playing today, Nice, had a period of continued success from 2010 to 2013, making them a formidable opponent on the field. Let's see if they can bring some of that legacy to today's match.
+
+time=> 2 - 29:06
+previous-comments=> Ramos this time finding Toni Kroos. Ronaldo, here's Hernandez. Bale with the ball across. sat up tentatively for him I think Juventus will be pleased Allegri will be pleased with the way his team has handled the situation since going a goal ahead
+reference=> lost just one of 17 home matches in Europe since this ground was redeveloped become a hard outfit to beat here here's Marcelo now Hernandez
+system_output=> Bale scored his first Clásico goal in the 2014 Copa del Rey Final against Barcelona, outrunning Marc Bartra from the halfway line to secure the win for Real Madrid.
+
+time=> 2 - 29:33
+previous-comments=> lost just one of 17 home matches in Europe since this ground was redeveloped become a hard outfit to beat here here's Marcelo now Hernandez Morata. It's got nowhere to go here. It's going to come back. It's done well to get the foul.
+reference=> Carvajal was lucky to escape further action for giving away the penalty has been shown a yellow card now.
+system_output=> Marcelo has a history of scoring crucial goals for Real Madrid, including in the Champions League and domestic league matches.
+
+time=> 2 - 30:43
+previous-comments=> would be no mistaking Chiellini Pielo's kick in reach of Carlos Tevez back to Andrea Pielo again away by Gareth Bale into the final quarter of an hour here Juventus looking to hold on to what would be an invaluable first leg lead
+reference=> on the six previous occasions they've played the home leg of their semi-final first in this competition they have won the match and the only time they lost the tie was back in 1978 against Bruges it would leave the tie on a knife edge
+system_output=> Chiellini, known for his defensive prowess, has been a key player for Juventus in European competitions, scoring crucial goals and earning accolades such as Serie A Defender of the Year in 2008.
+
+time=> 2 - 32:42
+previous-comments=> Now Varane. James. Ronaldo went for it but Chiellini managed to get up ahead of him vital touch but you can see Juventus they've set the stall out now for this last 15 minutes try and see out this lead another player coming on familiar
+reference=> to real madrid in fernando llorente spaniard who has scored seven goals against them in his career including both the group stage matches last season also scored a league winner against them for athletic bill bowers former club but
+system_output=> Chiellini made his 250th appearance with Juventus on 22 September 2012, establishing himself as a key player in the team's defense.
+
+time=> 2 - 33:58
+previous-comments=> Back in by Marcelo. Away by Vidal. And here's Carlos Tevez. he's got to be delighted with the way his players have set about the tactical plan the way that they've worked just want to keep up that work ethic now for the last 10 minutes or so
+reference=> Of course it still only take a 1-0 win in the Bernabeu for the home team to go through with the away goal tonight, but certainly something for the Italians to hold on to.
+system_output=> And speaking of Carlos Tevez, did you know that he was made club captain by manager Roberto Mancini back in 2010? Quite the leader on and off the field.
+
+time=> 2 - 34:17
+previous-comments=> Of course it still only take a 1-0 win in the Bernabeu for the home team to go through with the away goal tonight, but certainly something for the Italians to hold on to.
+reference=> Which can often happen in the first leg of these matches in the knockout phase.
+system_output=> In the previous match, Werder Bremen managed to secure a comeback victory with two second-half goals, knocking out Udinese at the quarterfinal stage.
+
+time=> 2 - 35:12
+previous-comments=> Pielo. Marchisio. Llorente. Marchisio tried to stretch Carvajal but can't get it beyond him to Evra. Kroos. Now Bale.
+reference=> but at the moment Real Madrid failing to come up with anything particularly creative they've lobbed some balls into the box that have been meat and drink for the Juventus defenders need to do better
+system_output=> Bale, who began his professional career at Southampton, has since become an integral part of Real Madrid, helping the club win the Copa del Rey and the Champions League.
+
+time=> 2 - 36:16
+previous-comments=> Pepe Tussle between Hernandez and Chiellini
+reference=> his pillow well for once he lost out to James and here's Javier Hernandez James Ramos not the first time we've seen that
+system_output=> Pepe formed a formidable center back partnership with Sergio Ramos in the 2011-12 season, helping Real Madrid claim their 32nd league title.
+
+time=> 2 - 37:00
+previous-comments=> his pillow well for once he lost out to James and here's Javier Hernandez James Ramos not the first time we've seen that and if Ancelotti's thinking about another change
+reference=> Less than 10 minutes of this.
+system_output=> In the current match, it's worth noting that Diego López was named first-choice goalkeeper for Real Madrid ahead of Casillas after a serious injury in January 2013.
+
+time=> 2 - 37:53
+previous-comments=> Less than 10 minutes of this. First leg left. Carvajal. Now bail. They do miss Luka Modric. Real Madrid in these situations, somebody to unlock the door to pick the pass.
+reference=> now they'd love to get Benzema back as well whether they will be able to for next week's second leg I'm not so sure he's been out for a while hasn't he I know he's back in training but might be asking a lot it's really an option that Ancelotti would want to have at his disposal
+system_output=> Carvajal has won a total of 26 major trophies at Real Madrid, including four La Liga titles and six Champions League wins.
+
+time=> 2 - 38:11
+previous-comments=> 
+reference=> can the players he's got out there get them level here marcelo's ball in away by bernucci hernandez goes down looking to claim for a push by licksteiner who was not very impressed with that fall
+system_output=> And here we have a fascinating fact about the team playing today - Nice, also known as Les Aiglons, had a period of continued success from 2010 to 2013, making them a formidable opponent on the field. Let's see if they can channel that legacy into a victory today.
+
+time=> 2 - 39:13
+previous-comments=> Kavahal. Ramos. Now Pepe.
+reference=> James Ramos Tony Kroos bit lively when it sprang off him allowing Pirlo to win it back and then James draws for himself a yellow card
+system_output=> Pepe formed a formidable center back partnership with Sergio Ramos during the 2011-12 season, making 29 appearances in La Liga as Real Madrid claimed their 32nd league title.
+
+time=> 2 - 44:35
+previous-comments=> Surges on, led by Marchisio. Here's Pirlo. Unusual for him not to pick out a target. Ramos Ronaldo Time running out.
+reference=> Often they've got down the sides there in this second half in chasing the equalizer.
+system_output=> Marchisio's adaptability and versatility have been key to his success, allowing him to excel in various midfield roles throughout his career.
+
+time=> 2 - 45:12
+previous-comments=> Time running out. Often they've got down the sides there in this second half in chasing the equalizer. Herrera Pepe holding him off Casillas' kick fell for Vidal but he's managed to get back into goal as we go into stoppage time
+reference=> Of which there will be three minutes.
+system_output=> Pepe earned his 100th cap for Portugal in a friendly match against Croatia, where he scored the equalizer to secure a 1-1 draw.
+
+time=> 2 - 47:48
+previous-comments=> one last chance perhaps for Real Madrid to save something from the first leg Kroos with the kick back across to Pepe nodded away from danger by Vidal
+reference=> And they've got another free kick.
+system_output=> Marcelo's successful campaign in the Champions League earned him a starting spot in UEFA's starting XI.
+
+done

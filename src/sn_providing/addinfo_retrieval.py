@@ -79,58 +79,9 @@ Generate the comment considering that it follows the previous comments.
 # 知識ベースのデータ保存場所
 DOCUMENT_DIR = Path("./data/addinfo_retrieval")
 
-# llama indexのデータ構造保存場所
-PERSIST_LLAMAINDEX_DIR = Path("./storage/llama_index")
-
 # langchainのデータ構造保存場所
 PERSIST_LANGCHAIN_DIR = Path("./storage/langchain-embedding-ada002")
 
-
-def run_llamaindex(spotting_data_list: SpottingDataList, output_file: str):
-    prompt_template = \
-    """
-    {instruction}
-    === query context
-    {query}
-    """
-    # build index
-    # check if the index is already stored
-    if not os.path.exists(PERSIST_LLAMAINDEX_DIR):
-        # store mode
-        documents = SimpleDirectoryReader(DOCUMENT_DIR).load_data()
-        # SimpleKeywordTableIndex は 単語の正規表現 に基づく
-        index = SimpleKeywordTableIndex.from_documents(documents)
-        # store to disk
-        index.storage_context.persist(persist_dir=PERSIST_LLAMAINDEX_DIR)
-    else:
-        # load
-        storage_context = StorageContext.from_defaults(persist_dir=PERSIST_LLAMAINDEX_DIR)
-        index = load_index_from_storage(storage_context)
-
-    # 毎回instructionは同じなので、先に入力しておく
-    format_prompt_with_query = partial(prompt_template.format, instruction=INSTRUCTION)
-
-    llm = LLamaIndexOpenAI(
-        model=MODEL_CONFIG["model_name"],
-        temperature=MODEL_CONFIG["temperature"],
-    )
-    query_engine = index.as_query_engine(llm=llm)
-
-    # query
-    result_list = SpottingDataList([])
-    for spotting_data in spotting_data_list.spottings[:10]: # run only 10 head for debug
-        logger.info(f"Querying: {spotting_data.query}")
-        if spotting_data.query is None:
-            continue
-        
-        prompt = format_prompt_with_query(query=spotting_data.query)
-        response = query_engine.query(prompt)
-        spotting_data.addiofo = str(response.response) if response.response else None
-        result_list.spottings.append(spotting_data)
-        
-        logger.info(f"Response: {response}")
-    # save
-    result_list.to_jsonline(output_file)
 
 
 def run_langchain(spotting_data_list: SpottingDataList, output_file: str, retriever_type: RetrieverType):
@@ -155,10 +106,15 @@ Answer:"""
     )
 
     prompt = PromptTemplate.from_template(prompt_template)
+    
+    def log_prompt(prompt: str) -> str:
+        logger.info(f"Overall Prompt: {prompt}")
+        return prompt
 
     rag_chain = (
         {"instruction": lambda _: INSTRUCTION, "documents": retriever | format_docs, "query": RunnablePassthrough()}
         | prompt
+        | log_prompt
         | llm
         | StrOutputParser()
     )
@@ -226,11 +182,11 @@ def get_document_splits(ducument_dir: Path, chunk_size: int = 1000, chunk_overla
     splits = text_splitter.split_documents(documents)
     return splits
 
+
 if __name__ == "__main__":
     args = Arguments().parse_args()
 
     spotting_data_list = SpottingDataList.from_jsonline(args.input_file)
     
     run_langchain(spotting_data_list, args.output_file, args.retriever_type)
-
 
