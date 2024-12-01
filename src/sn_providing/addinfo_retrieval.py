@@ -10,14 +10,6 @@ from tap import Tap
 from loguru import logger
 from dotenv import load_dotenv
 
-from llama_index.core import ( 
-    SimpleKeywordTableIndex, 
-    SimpleDirectoryReader, 
-    StorageContext, 
-    load_index_from_storage 
-)
-from llama_index.llms.openai import OpenAI as LLamaIndexOpenAI
-
 from langchain_openai import ChatOpenAI as LangChainOpenAI
 from langchain_core.documents import (
     Document,
@@ -29,7 +21,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.retrievers import TFIDFRetriever
 from langchain_core.prompts import PromptTemplate
 from langchain_community.vectorstores import FAISS
-from langchain_openai.chat_models import ChatOpenAI
 from langchain_openai.embeddings import OpenAIEmbeddings
 
 
@@ -69,12 +60,7 @@ EMBEDDING_CONFIG = {
 }
 
 INSTRUCTION = \
-"""
-You are a professional color commentator for a live broadcast of soccer.
-Using the documents below, provide one concise fact, such as player records or team statistics, directly relevant to the current soccer match.
-The fact should be clear, accurate, and suitable for live commentary.
-Generate the comment considering that it follows the previous comments.
-"""
+"""You are a professional color commentator for a live broadcast of soccer. Using the documents below, provide one concise fact, such as player records or team statistics, directly relevant to the current soccer match. The fact should be clear, accurate, and suitable for live commentary. Generate the comment considering that it follows the previous comments. """
 
 # 知識ベースのデータ保存場所
 DOCUMENT_DIR = Path("./data/addinfo_retrieval")
