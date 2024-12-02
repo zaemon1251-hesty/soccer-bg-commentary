@@ -42,7 +42,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 RetrieverType = Literal["tfidf", "openai-embedding"]
 
 class Arguments(Tap):
-    game: str
+    game: str | None = None # useless
     input_file: str
     output_file: str
     retriever_type: RetrieverType = "tfidf"

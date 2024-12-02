@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import Optional, List
+import re
+from typing import Dict, Optional, List
 from tap import Tap
 import json
 import pandas as pd
@@ -25,6 +26,7 @@ class SpottingData:
     confidence: float
     position: int
     category: str # 0(映像の説明) or 1(付加的情報)
+    game: Optional[str] = None
     query: Optional[str] = None
     addiofo: Optional[List[str]] = None
     reference: Optional[str] = None
@@ -33,9 +35,10 @@ class SpottingData:
 class SpottingDataList:
     """スポッティングデータの配列"""
     spottings: List[SpottingData]
+    game_metadata: Dict = None
     
-    @staticmethod
-    def read_json(json_file: str) -> "SpottingDataList":
+    @classmethod
+    def read_csv(cls, json_file: str) -> "SpottingDataList":
         data = json.load(open(json_file))
 
         spottings = []
@@ -50,19 +53,20 @@ class SpottingDataList:
             )
             spottings.append(spotting)
 
-        return SpottingDataList(spottings)
+        game_metadata = SpottingDataList.extract_data_from_game(data["game"])
+        
+        return cls(spottings, game_metadata)
     
-    @staticmethod
-    def filter_by_category_1(spottings: "SpottingDataList") -> "SpottingDataList":
-        return SpottingDataList([s for s in spottings.spottings if s.category == "1"])
+    def filter_by_category_1(self):
+        self.spottings = [s for s in self.spottings if s.category == "1"]
 
-    @staticmethod
-    def from_jsonline(input_file: str):
+    @classmethod
+    def from_jsonline(cls, input_file: str):
         spottings = []
         with open(input_file, 'r') as f:
             for line in f:
                 spottings.append(SpottingData(**json.loads(line)))
-        return SpottingDataList(spottings)
+        return cls(spottings)
 
     def to_json(self, output_file: str):
         json.dump([s.__dict__ for s in self.spottings], open(output_file, "w"), ensure_ascii=False)    
@@ -76,6 +80,33 @@ class SpottingDataList:
         head = head if head else len(self.spottings)
         for s in self.spottings[:head]:
             logger.info(f"{s.half=}, {s.game_time=}")
+
+    @staticmethod
+    def extract_data_from_game(game: str):
+        league, season, match_data = game.split('/')
+        # regexで抽出する
+        date = re.search(r'\d{4}-\d{2}-\d{2}', match_data).group()
+        kickoff_time = re.search(r'\d{2}-\d{2}', match_data).group()
+
+        # score は 空白 数字 - 数字 空白
+        home_score = int(re.search(r' (\d) - \d ', match_data).group(1))
+        away_score = int(re.search(r' \d - (\d) ', match_data).group(1))
+
+        # home-team は、 kickoff_time の後から score の前まで
+        home_team = re.search(r' \d{2}-\d{2} (.*) \d - \d ', match_data).group(1)
+        # away-teamは、scoreの後から終わりまで
+        away_team = re.search(r' \d - \d (.*)', match_data).group(1)
+
+        return {
+            "league": league,
+            "season": season,
+            "date": date,
+            "kickoff_time": kickoff_time,
+            "home_team": home_team,
+            "home_score": home_score,
+            "away_score": away_score,
+            "away_team": away_team,
+        }
 
 
 @dataclass
@@ -173,7 +204,7 @@ class VideoData:
 def build_query(
     comments: CommentDataList, 
     max_length: int = 256, 
-    *args, **kargs
+    *args, **kwargs
 ) -> str:
     """
     検索クエリの内容:
@@ -197,10 +228,16 @@ def build_query(
     query = "Previous comments: " + query
     
     # 映像中に映っている選手の名前を取得
-    if "video_data" in kargs and kargs["video_data"]:
-        team_game_str = " ".join([f"{p['name']} @ {p['team']}" for p in kargs['video_data']])
+    if kwargs.get("video_data"):
+        team_game_str = ", ".join([f"{p['name']} from {p['team']}" for p in kwargs['video_data']])
         query = f"Players shown in this frame: {team_game_str}\n\n" + query
-    
+
+    # 試合情報を取得
+    if kwargs.get("game_metadata"):
+        game_data = kwargs["game_metadata"]
+        game_query = f"{game_data['league']} {game_data['league']} {game_data['date']} {game_data['home_team']} vs {game_data['away_team']}"
+        query = game_query + "\n\n" + query
+
     return query
 
 
@@ -217,8 +254,8 @@ def run(args: Arguments):
     logger.info("Start constructing query")
     logger.info(f"{args=}")
     
-    spotting_data_list = SpottingDataList.read_json(args.input_file)    
-    spotting_data_list = SpottingDataList.filter_by_category_1(spotting_data_list)
+    spotting_data_list = SpottingDataList.read_csv(args.input_file)    
+    spotting_data_list.filter_by_category_1()
     
     video_data = VideoData(args.video_data_csv)
     
@@ -228,6 +265,8 @@ def run(args: Arguments):
     logger.info(f"{len(spotting_data_list.spottings)=}")
     logger.info("Comment data")
     logger.info(f"{len(comment_data_list.comments)=}")
+    logger.info("Game data")
+    logger.info(f"{spotting_data_list.game_metadata=}")
     
     result_spottings = []
     
@@ -248,7 +287,8 @@ def run(args: Arguments):
             spotting_data.game_time
         )
         
-        query_args = {"comments": filtered_comment_list, "video_data": None}
+        query_args = {"comments": filtered_comment_list, "video_data": None, "game_metadata": spotting_data_list.game_metadata}
+        
         if video_data is not None:
             query_args["video_data"] = video_data.get_data(args.game, spotting_data.half, spotting_data.game_time)
         
@@ -260,12 +300,12 @@ def run(args: Arguments):
             spotting_data.reference = ref
         result_spottings.append(spotting_data)
 
-    result_spottings = SpottingDataList(result_spottings)
+    spotting_data_list.spottings = result_spottings
 
     if args.output_file.endswith(".json"):
-        result_spottings.to_json(args.output_file)
+        spotting_data_list.to_json(args.output_file)
     elif args.output_file.endswith(".jsonl"):
-        result_spottings.to_jsonline(args.output_file)
+        spotting_data_list.to_jsonline(args.output_file)
     
     logger.info(f"Output file is saved at {args.output_file}")
 
