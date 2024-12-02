@@ -60,7 +60,11 @@ EMBEDDING_CONFIG = {
 }
 
 INSTRUCTION = \
-"""You are a professional color commentator for a live broadcast of soccer. Using the documents below, provide one concise fact, such as player records or team statistics, directly relevant to the current soccer match. The fact should be clear, accurate, and suitable for live commentary. Generate the comment considering that it follows the previous comments. """
+"""You are a professional color commentator for a live broadcast of soccer. 
+Using the documents below, provide one concise fact, such as player records or team statistics, relevant to the current soccer match. 
+The fact should be clear, accurate, and suitable for live commentary. 
+The game date will be given as YYYY-MM-DD. Do not use information dated after this.
+Generate the comment considering that it follows the previous comments."""
 
 # 知識ベースのデータ保存場所
 DOCUMENT_DIR = Path("./data/addinfo_retrieval")
@@ -77,10 +81,9 @@ def run_langchain(spotting_data_list: SpottingDataList, output_file: str, retrie
     prompt_template = \
 """{instruction}
 
-=== documents
+===documents
 {documents}
-
-=== previous comments
+===
 {query}
 
 Answer:"""
@@ -93,12 +96,17 @@ Answer:"""
 
     prompt = PromptTemplate.from_template(prompt_template)
     
+    def log_documents(docs):
+        for doc in docs:
+            logger.info(f"Document: {doc.page_content}")
+        return docs
+
     def log_prompt(prompt: str) -> str:
         logger.info(f"Overall Prompt: {prompt}")
         return prompt
 
     rag_chain = (
-        {"instruction": lambda _: INSTRUCTION, "documents": retriever | format_docs, "query": RunnablePassthrough()}
+        {"instruction": lambda _: INSTRUCTION, "documents": retriever | log_documents | format_docs, "query": RunnablePassthrough()}
         | prompt
         | log_prompt
         | llm
@@ -107,12 +115,12 @@ Answer:"""
 
     result_list = SpottingDataList([])
     for spotting_data in spotting_data_list.spottings:
-        logger.info(f"Querying: {spotting_data.query}")
+        logger.info(f"Query: {spotting_data.query}")
         if spotting_data.query is None:
             continue
         
         response = rag_chain.invoke(spotting_data.query)
-        spotting_data.addiofo = response
+        spotting_data.generated_text = response
         result_list.spottings.append(spotting_data)
         
         logger.info(f"Response: {response}")

@@ -28,8 +28,8 @@ class SpottingData:
     category: str # 0(映像の説明) or 1(付加的情報)
     game: Optional[str] = None
     query: Optional[str] = None
-    addiofo: Optional[List[str]] = None
-    reference: Optional[str] = None
+    generated_text: Optional[List[str]] = None
+    reference_text: Optional[str] = None
 
 @dataclass
 class SpottingDataList:
@@ -190,13 +190,14 @@ class VideoData:
 
     def get_data(self, game,  half: int, game_time: int) -> dict[str, str]:
         # 2秒前から2秒後の間に映っている選手名/teamを取得
-        spot_players_df = self.player_df[
+        spot_players_df:pd.DataFrame = self.player_df.loc[
             (self.player_df["half"] == half) & \
             (self.player_df["game"] == game) & \
             (self.player_df["time"] >= game_time - self.sec_threshold) & \
             (self.player_df["time"] <= game_time + self.sec_threshold)
         ]
-        player_team_names = spot_players_df[['team', 'name']].to_dict(orient='records')
+        # team name と player name をuniqeuに取得
+        player_team_names = spot_players_df[['team', 'name']].drop_duplicates().to_dict(orient='records')
         
         return player_team_names
 
@@ -230,13 +231,13 @@ def build_query(
     # 映像中に映っている選手の名前を取得
     if kwargs.get("video_data"):
         team_game_str = ", ".join([f"{p['name']} from {p['team']}" for p in kwargs['video_data']])
-        query = f"Players shown in this frame: {team_game_str}\n\n" + query
+        query = f"Players shown in this frame: {team_game_str}\n" + query
 
     # 試合情報を取得
     if kwargs.get("game_metadata"):
         game_data = kwargs["game_metadata"]
-        game_query = f"{game_data['league']} {game_data['league']} {game_data['date']} {game_data['home_team']} vs {game_data['away_team']}"
-        query = game_query + "\n\n" + query
+        game_query = f"Game: {game_data['league']} {game_data['league']} {game_data['date']} {game_data['home_team']} vs {game_data['away_team']}"
+        query = game_query + "\n" + query
 
     return query
 
@@ -297,7 +298,7 @@ def run(args: Arguments):
         
         # reference があれば追加
         if ref := comment_data_list.get_comment_by_time(spotting_data.game_time):
-            spotting_data.reference = ref
+            spotting_data.reference_text = ref
         result_spottings.append(spotting_data)
 
     spotting_data_list.spottings = result_spottings
