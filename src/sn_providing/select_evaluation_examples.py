@@ -14,6 +14,7 @@ class Argument(Tap):
     exist_target_txt: str
     jsonl_filename: str
     output_dir: str
+    output_basename: str = "evaluation-target"
 
 
 def main(args: Argument):
@@ -39,7 +40,7 @@ def main(args: Argument):
             filtered_json_data.append(data)
     print(f"Filtered data len: {len(filtered_json_data)}")
     
-    output_path = Path(args.output_dir) / "evaluation-target.jsonl"
+    output_path = Path(args.output_dir) / f"{args.output_basename}.jsonl"
     with open(output_path, "w") as f:
         for data in filtered_json_data:
             f.write(json.dumps(data, ensure_ascii=False) + "\n")

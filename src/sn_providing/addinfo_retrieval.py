@@ -29,13 +29,12 @@ from sn_providing.construct_query import SpottingDataList
 #　(project-root)/.env を読み込む
 load_dotenv()
 
-logger.add(
-    "logs/{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")),
-    level="DEBUG",
-)
 # llama_index,langchain のログを標準出力に出す
 # TODO loguru.logger に統一したい
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(
+    level=logging.DEBUG, 
+    filename="logs/{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+)
 
 
 # 型エイリアス 文書スコアの算出方法方法
