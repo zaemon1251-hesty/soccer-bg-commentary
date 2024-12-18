@@ -12,7 +12,6 @@
 # }
 
 
-
 INPUT_FILE="outputs/evaluation-target.jsonl"
 
 # A: ドキュメント検索せず、LLMに任せる
@@ -51,6 +50,6 @@ uv run python src/sn_providing/addinfo_retrieval.py \
     --input_file "$INPUT_FILE" \
     --output_file "$OUTPUT_C_FILE" \
     --retriever_type "openai-embedding" \
-    --reference_documents_csv "data/reference_documents/evaluation-samples.yaml"
+    --reference_documents_yaml "data/reference_documents/evaluation-samples.yaml"
 
 
