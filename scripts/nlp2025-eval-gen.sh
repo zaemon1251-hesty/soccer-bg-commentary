@@ -16,9 +16,10 @@
 INPUT_FILE="outputs/evaluation-target.jsonl"
 
 # A: ドキュメント検索せず、LLMに任せる
+INPUT_B_FILE="outputs/evaluation-target-b.jsonl"  # 選手同定モジュールの出力を入れる
 OUTPUT_A_FILE="outputs/evaluation-target-a.jsonl"
 uv run python src/sn_providing/addinfo_retrieval.py \
-    --input_file "$INPUT_FILE" \
+    --input_file "$INPUT_B_FILE" \
     --output_file "$OUTPUT_A_FILE" \
     --retriever_type "openai-embedding" \
     --no_retrieval
@@ -50,6 +51,6 @@ uv run python src/sn_providing/addinfo_retrieval.py \
     --input_file "$INPUT_FILE" \
     --output_file "$OUTPUT_C_FILE" \
     --retriever_type "openai-embedding" \
-    --reference_documents_csv "data/reference_documents.csv"
+    --reference_documents_csv "data/reference_documents/evaluation-samples.yaml"
 
 

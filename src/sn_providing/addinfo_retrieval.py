@@ -45,7 +45,8 @@ class Arguments(Tap):
     input_file: str
     output_file: str
     retriever_type: RetrieverType = "tfidf"
-
+    no_retrieval: bool = False
+    reference_documents_csv: str | None = None
 
 # constants
 MODEL_CONFIG = {
@@ -60,7 +61,8 @@ EMBEDDING_CONFIG = {
 
 INSTRUCTION = \
 """You are a professional color commentator for a live broadcast of soccer. 
-Using the documents below, provide one concise fact, such as player records or team statistics, relevant to the current soccer match. 
+Using the documents below, 
+provide one concise fact, such as player records or team statistics, relevant to the current soccer match. 
 The fact should be clear, accurate, and suitable for live commentary. 
 The game date will be given as YYYY-MM-DD. Do not use information dated after this.
 Generate the comment considering that it follows the previous comments."""
@@ -73,19 +75,15 @@ PERSIST_LANGCHAIN_DIR = Path("./storage/langchain-embedding-ada002")
 
 
 
-def run_langchain(spotting_data_list: SpottingDataList, output_file: str, retriever_type: RetrieverType):
+def run_langchain(
+    spotting_data_list: SpottingDataList, 
+    output_file: str, retriever_type: RetrieverType,
+    no_retrieval: bool = False,
+    reference_documents_csv: str | None = None):
     def format_docs(docs):
         return "\n\n".join(doc.page_content for doc in docs)
     
-    prompt_template = \
-"""{instruction}
 
-===documents
-{documents}
-===
-{query}
-
-Answer:"""
 
     retriever = get_retriever_langchain(retriever_type, langchain_store_dir=PERSIST_LANGCHAIN_DIR)
 
@@ -93,7 +91,6 @@ Answer:"""
         **MODEL_CONFIG
     )
 
-    prompt = PromptTemplate.from_template(prompt_template)
     
     def log_documents(docs):
         for doc in docs:
@@ -104,13 +101,42 @@ Answer:"""
         logger.info(f"Overall Prompt: {prompt}")
         return prompt
 
-    rag_chain = (
-        {"instruction": lambda _: INSTRUCTION, "documents": retriever | log_documents | format_docs, "query": RunnablePassthrough()}
-        | prompt
-        | log_prompt
-        | llm
-        | StrOutputParser()
-    )
+    if no_retrieval:
+        prompt_template = \
+"""{instruction}
+
+===
+{query}
+
+Answer:"""
+        prompt = PromptTemplate.from_template(prompt_template)
+        rag_chain = (
+            {"instruction": lambda _: INSTRUCTION, "documents": lambda _: "", "query": RunnablePassthrough()}
+            | prompt
+            | log_prompt
+            | llm
+            | StrOutputParser()
+        )
+    elif reference_documents_csv is not None:
+        raise NotImplementedError("Reference documents are not implemented yet.")
+    else:
+        prompt_template = \
+"""{instruction}
+
+===documents
+{documents}
+===
+{query}
+
+Answer:"""
+        prompt = PromptTemplate.from_template(prompt_template)
+        rag_chain = (
+            {"instruction": lambda _: INSTRUCTION, "documents": retriever | log_documents | format_docs, "query": RunnablePassthrough()}
+            | prompt
+            | log_prompt
+            | llm
+            | StrOutputParser()
+        )
 
     result_list = SpottingDataList([])
     for spotting_data in spotting_data_list.spottings:
@@ -181,5 +207,8 @@ if __name__ == "__main__":
 
     spotting_data_list = SpottingDataList.from_jsonline(args.input_file)
     
-    run_langchain(spotting_data_list, args.output_file, args.retriever_type)
+    if args.no_retrieval:
+        INSTRUCTION = INSTRUCTION.replace("Using the documents below,", "")
+    
+    run_langchain(spotting_data_list, args.output_file, args.retriever_type, args.no_retrieval, args.reference_documents_csv)
 

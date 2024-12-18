@@ -63,7 +63,7 @@ class SpottingDataList:
     @classmethod
     def from_jsonline(cls, input_file: str):
         spottings = []
-        with open(input_file, 'r') as f:
+        with open(input_file) as f:
             for line in f:
                 spottings.append(SpottingData(**json.loads(line)))
         return cls(spottings)
