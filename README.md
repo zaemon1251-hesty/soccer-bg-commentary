@@ -23,17 +23,17 @@ archives/data.zip には以下のデータが含まれています。
 - 知識ベース (txt files)
   - [wikipediaから選手情報を収集](https://github.com/zaemon1251-hesty/sn-script/blob/dev/src/sn_script/download_articles.py)
   - [trafilaturaでテキスト抽出](https://github.com/zaemon1251-hesty/sn-script/blob/dev/src/sn_script/extract_text.py)
-- (example_data -> llamaindexのサンプルデータ)
+- (example_data -> langchainのサンプルデータ)
 
 ## usage
 
 ```bash
-# 1 prepare input data and fix paths in the scripts
+# データのセットアップ
 scripts/setup_data.sh
 
-# 2 construct query for retrieving additional information
-scripts/construct_query_comments.sh
+# クエリの構築
+scripts/sn-gamestate-construct_query_comments.sh
 
-# 3 generate candidates of additional information
-scripts/addinfo_retrieval.sh
+# 実況コメント生成
+scripts/nlp2025-eval-gen.sh
 ```

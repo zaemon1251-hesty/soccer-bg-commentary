@@ -12,11 +12,32 @@
 # }
 
 
+# data/from_video/players_in_frames.csv (正解の選手リスト) を使って、クエリ構築されている前提
 INPUT_FILE="outputs/evaluation-target.jsonl"
+if [ ! -e "$INPUT_FILE" ]; then
+    # data/from_video/players_in_frames_sn_gamestate.csv (選手同定モジュールの選手リスト) を使って、クエリ構築されている前提
+    uv run python src/sn_providing/select_evaluation_examples.py \
+        --query_json_dir outputs \
+        --exist_target_txt data/exist_targets.txt \
+        --jsonl_filename sn-gamestate-results_spotting_query.jsonl \
+        --output_dir outputs \
+        --output_basename evaluation-target
+fi
+
 
 # A: ドキュメント検索せず、LLMに任せる
 INPUT_B_FILE="outputs/evaluation-target-b.jsonl"  # 選手同定モジュールの出力を入れる
 OUTPUT_A_FILE="outputs/evaluation-target-a.jsonl"
+
+if [ ! -e "$INPUT_B_FILE" ]; then 
+    # data/from_video/players_in_frames_sn_gamestate.csv (選手同定モジュールの選手リスト) を使って、クエリ構築されている前提
+    uv run python src/sn_providing/select_evaluation_examples.py \
+        --query_json_dir outputs \
+        --exist_target_txt data/exist_targets.txt \
+        --jsonl_filename sn-gamestate-results_spotting_query.jsonl \
+        --output_dir outputs \
+        --output_basename evaluation-target-b
+fi
 uv run python src/sn_providing/addinfo_retrieval.py \
     --input_file "$INPUT_B_FILE" \
     --output_file "$OUTPUT_A_FILE" \
@@ -25,17 +46,6 @@ uv run python src/sn_providing/addinfo_retrieval.py \
 
 
 # B: システム全体を動かす
-INPUT_B_FILE="outputs/evaluation-target-b.jsonl"
-OUTPUT_B_FILE="outputs/evaluation-target-b.jsonl"
-
-if [ ! -e "$INPUT_B_FILE" ]; then # まだ作っていない場合は収集する
-    uv run python src/sn_providing/select_evaluation_examples.py \
-        --query_json_dir outputs \
-        --exist_target_txt data/exist_targets.txt \
-        --jsonl_filename sn-gamestate-results_spotting_query.jsonl \
-        --output_dir outputs \
-        --output_basename evaluation-target-b
-fi
 INPUT_B_FILE="outputs/evaluation-target-b.jsonl"
 OUTPUT_B_FILE="outputs/evaluation-target-b.jsonl"
 uv run python src/sn_providing/addinfo_retrieval.py \

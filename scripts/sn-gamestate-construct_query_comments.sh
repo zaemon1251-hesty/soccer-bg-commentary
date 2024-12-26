@@ -18,7 +18,11 @@ do
         continue
     fi
 
+    # A,Bを作るためならこれ↓
     video_data_csv="data/from_video/players_in_frames_sn_gamestate.csv"
+
+    # C',C を作るためならこれ↓
+    # video_data_csv="data/from_video/players_in_frames.csv"
 
     # related to comment csv file
     INPUT_CSV_DIR="data/commentary"

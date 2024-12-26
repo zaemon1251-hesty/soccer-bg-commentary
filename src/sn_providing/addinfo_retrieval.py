@@ -71,6 +71,11 @@ EMBEDDING_CONFIG = {
     "chunk_size": 1000,
 }
 
+SEARCH_CONFIG = {
+    "k": 10,
+    "score_threshold": 0.8,
+}
+
 INSTRUCTION = \
 """You are a professional color commentator for a live broadcast of soccer. 
 Using the documents below, 
@@ -121,7 +126,7 @@ def run_langchain(
         return "\n\n".join(doc.page_content for doc in docs)
 
     def get_reference_documents(game, half, time, reference_documents: list[ReferenceDoc]):
-        target_dcument = ""
+        target_dcument = None
         for doc_data in reference_documents:
             if doc_data.game == game and doc_data.half == half and doc_data.time == time:
                 target_dcument = doc_data.content
@@ -178,10 +183,14 @@ def run_langchain(
             | StrOutputParser()
         )
     else:
+        def process_docs(spotting_data):
+            query = lambda _: spotting_data.query
+            docs = query | retriever | log_documents | format_docs
+            return docs
         rag_chain = (
             {
                 "instruction": lambda _: INSTRUCTION, 
-                "documents": lambda spotting_data: spotting_data.query | retriever | log_documents | format_docs, 
+                "documents": lambda spotting_data: process_docs(spotting_data), 
                 "query": RunnablePassthrough()}
             | PromptTemplate.from_template(prompt_template)
             | log_prompt
@@ -194,6 +203,11 @@ def run_langchain(
     for spotting_data in spotting_data_list.spottings:
         logger.info(f"Query: {spotting_data.query}")
         if spotting_data.query is None:
+            continue
+        
+        if reference_doc_data is not None and \
+            get_reference_documents_partial(spotting_data.game, spotting_data.half, spotting_data.game_time) is None:
+            # 正解文書がない場合はスキップ
             continue
         
         response = rag_chain.invoke(spotting_data)
@@ -219,6 +233,7 @@ def get_retriever_langchain(type: RetrieverType, langchain_store_dir: Path) -> B
                 folder_path=langchain_store_dir, 
                 allow_dangerous_deserialization=True
             )
+        retriever.k = SEARCH_CONFIG["k"]
         return retriever
     elif type == "openai-embedding":
         embeddings = OpenAIEmbeddings(**EMBEDDING_CONFIG)
@@ -227,7 +242,10 @@ def get_retriever_langchain(type: RetrieverType, langchain_store_dir: Path) -> B
             splits = get_document_splits(DOCUMENT_DIR)
             
             vectorstore = FAISS.from_documents(documents=splits, embedding=embeddings)
-            retriever = vectorstore.as_retriever()
+            retriever = vectorstore.as_retriever(
+                search_type="similarity_score_threshold",
+                search_kwargs={'score_threshold': EMBEDDING_CONFIG["score_threshold"], 'k': EMBEDDING_CONFIG["k"]}
+            )
             # 保存
             vectorstore.save_local(folder_path=langchain_store_dir)
         else:
@@ -237,13 +255,16 @@ def get_retriever_langchain(type: RetrieverType, langchain_store_dir: Path) -> B
                 embeddings=embeddings,
                 allow_dangerous_deserialization=True
             )
-            retriever = vectorstore.as_retriever()
+            retriever = vectorstore.as_retriever(
+                search_type="similarity_score_threshold",
+                search_kwargs=SEARCH_CONFIG
+            )
         return retriever
     else:
         raise ValueError(f"Invalid retriever type: {type}. Use 'tfidf' or 'openai-embedding'.")
 
 
-def get_document_splits(ducument_dir: Path, chunk_size: int = 1000, chunk_overlap: int = 200):
+def get_document_splits(ducument_dir: Path, chunk_size: int = 1000, chunk_overlap: int = 100):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     documents = []
     for doc_path in os.listdir(ducument_dir):
