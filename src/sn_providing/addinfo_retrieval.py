@@ -62,7 +62,7 @@ class Arguments(Tap):
 
 # constants
 MODEL_CONFIG = {
-    "model": "gpt-3.5-turbo",
+    "model": "gpt-4o",
     "temperature": 0,
 }
 
@@ -73,7 +73,7 @@ EMBEDDING_CONFIG = {
 
 SEARCH_CONFIG = {
     "k": 10,
-    "score_threshold": 0.8,
+    "score_threshold": 0.7,
 }
 
 INSTRUCTION = \
@@ -191,7 +191,7 @@ def run_langchain(
             {
                 "instruction": lambda _: INSTRUCTION, 
                 "documents": lambda spotting_data: process_docs(spotting_data), 
-                "query": RunnablePassthrough()}
+                "query": lambda spotting_data: spotting_data.query}
             | PromptTemplate.from_template(prompt_template)
             | log_prompt
             | llm
