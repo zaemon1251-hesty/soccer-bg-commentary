@@ -17,6 +17,10 @@ class Arguments(Tap):
     output_file: str
     comment_csv: str
     video_data_csv: str = None
+    spotting_csv: str = None
+    
+    sec_window_player: int = 2
+    sec_window_action: int = 15
 
 
 @dataclass
@@ -30,6 +34,7 @@ class SpottingData:
     query: Optional[str] = None
     generated_text: Optional[List[str]] = None
     reference_text: Optional[str] = None
+
 
 @dataclass
 class SpottingDataList:
@@ -179,28 +184,74 @@ class CommentDataList:
 
 
 class VideoData:
-    def __init__(self, player_csv: Path, sec_threshold: int = 2):
+    def __init__(
+        self, 
+        player_csv: Path, 
+        spotting_csv: Path = None, 
+        sec_window_player: int = 2, 
+        sec_window_action: int = 15
+    ):
         # パラメータを設定
-        self.sec_threshold = sec_threshold
+        self.sec_window_player = sec_window_player
+        self.sec_window = sec_window_action
         
         # データを読み込み
         self.player_df = pd.read_csv(player_csv)
-        assert set(self.player_df.columns) >= {"game", "half", "time", "team", "name"}
+        assert {"game", "half", "time", "team", "name"}.issubset(set(self.player_df.columns))
         
+        if spotting_csv is not None:
+            self.spotting_df = self._preprocess_spotting_df(pd.read_csv(spotting_csv))
+            assert {"game", "half", "time", "label"}.issubset(set(self.spotting_df.columns))
+            
 
-    def get_data(self, game,  half: int, game_time: int) -> dict[str, str]:
-        # 2秒前から2秒後の間に映っている選手名/teamを取得
+    def get_data(self, game: str, half: int, game_time: int) -> dict[str, str]:
+        result_dict = {
+            "player_team_names": None,
+            "actions": None
+        }
+
+        # self.sec_threshold 秒前 から self.sec_threshold 秒後の間に映っている選手名/teamを取得
         spot_players_df:pd.DataFrame = self.player_df.loc[
             (self.player_df["half"] == half) & \
             (self.player_df["game"] == game) & \
-            (self.player_df["time"] >= game_time - self.sec_threshold) & \
-            (self.player_df["time"] <= game_time + self.sec_threshold)
+            (self.player_df["time"] >= game_time - self.sec_window_player) & \
+            (self.player_df["time"] <= game_time + self.sec_window_player)
         ]
         # team name と player name をuniqeuに取得
         player_team_names = spot_players_df[['team', 'name']].drop_duplicates().to_dict(orient='records')
         
-        return player_team_names
+        if args.spotting_csv is None:
+            result_dict["player_team_names"] = player_team_names
+            return result_dict
+        
+        # sec_window 秒前までのアクションを取得
+        spot_action_df: pd.DataFrame = self.spotting_df.loc[
+            (self.spotting_df["half"] == half) & \
+            (self.spotting_df["game"] == game) & \
+            (self.spotting_df["time"] <= game_time) & \
+            (self.spotting_df["time"] >= game_time - self.sec_window)
+        ].sort_values("time", ascending=True)
+        # action を取得
+        actions = spot_action_df["label"].to_list()
+        
+        result_dict["player_team_names"] = player_team_names
+        result_dict["actions"] = actions
+        return result_dict
+    
+    @staticmethod
+    def _preprocess_spotting_df(spotting_df: pd.DataFrame) -> pd.DataFrame:
+        # 前処理
+        spotting_df["half"] = spotting_df["gameTime"].str.split(" - ").str[0].astype(float)
+        spotting_df["time"] = spotting_df["gameTime"].str.split(" - ").str[1].map(VideoData.gametime_to_seconds).astype(float)
+        spotting_df["game"] = spotting_df["game"].str.rstrip("/")
+        return spotting_df
 
+    @staticmethod
+    def gametime_to_seconds(gametime):
+        if gametime.count(":") == 2:
+            gametime = ":".join(gametime.split(":")[:2])
+        m, s = gametime.split(":")
+        return int(m) * 60 + int(s)
 
 def build_query(
     comments: CommentDataList, 
@@ -229,8 +280,8 @@ def build_query(
     query = "Previous comments: " + query
     
     # 映像中に映っている選手の名前を取得
-    if kwargs.get("video_data"):
-        team_game_str = ", ".join([f"{p['name']} from {p['team']}" for p in kwargs['video_data']])
+    if kwargs.get("player_team_names"):
+        team_game_str = ", ".join([f"{p['name']} from {p['team']}" for p in kwargs['player_team_names']])
         query = f"Players shown in this frame: {team_game_str}\n" + query
 
     # 試合情報を取得
@@ -238,6 +289,11 @@ def build_query(
         game_data = kwargs["game_metadata"]
         game_query = f"Game: {game_data['league']} {game_data['league']} {game_data['date']} {game_data['home_team']} vs {game_data['away_team']}"
         query = game_query + "\n" + query
+    
+    # アクション情報を取得
+    if actions := kwargs.get("actions"):
+        action_str = ", ".join(actions) #たいていは高々一つのはず
+        query = f"Recent Event: {action_str}\n" + query
 
     return query
 
@@ -258,7 +314,7 @@ def run(args: Arguments):
     spotting_data_list = SpottingDataList.read_csv(args.input_file)    
     spotting_data_list.filter_by_category_1()
     
-    video_data = VideoData(args.video_data_csv)
+    video_data = VideoData(args.video_data_csv, args.spotting_csv)
     
     comment_data_list = CommentDataList.read_csv(args.comment_csv, args.game)
     
@@ -291,7 +347,9 @@ def run(args: Arguments):
         query_args = {"comments": filtered_comment_list, "video_data": None, "game_metadata": spotting_data_list.game_metadata}
         
         if video_data is not None:
-            query_args["video_data"] = video_data.get_data(args.game, spotting_data.half, spotting_data.game_time)
+            video_data_dict = video_data.get_data(args.game, spotting_data.half, spotting_data.game_time)
+            query_args["player_team_names"] = video_data_dict["player_team_names"]
+            query_args["actions"] = video_data_dict["actions"]
         
         query = build_query(**query_args)
         spotting_data.query = query

@@ -2,6 +2,7 @@
 # related to spotting json file
 # v3 のアノテーションがある、プレミアリーグ映像を選択した
 
+
 INPUT_JSON_DIR="data/spotting"
 SPOTTING_MODEL="commentary_gold"
 
@@ -24,6 +25,9 @@ do
     # C',C を作るためならこれ↓
     # video_data_csv="data/from_video/players_in_frames.csv"
 
+    # B' を作るためならこれを追加で使う
+    spotting_csv="data/from_video/soccernet_spotting_labels.csv"
+
     # related to comment csv file
     INPUT_CSV_DIR="data/commentary"
     COMMENT_CSV_FILE="$INPUT_CSV_DIR/scbi-v2.csv"
@@ -37,5 +41,6 @@ do
         --input_file "$INPUT_FILE" \
         --output_file "$OUTPUT_FILE" \
         --comment_csv "$COMMENT_CSV_FILE" \
-        --video_data_csv "$video_data_csv"
+        --video_data_csv "$video_data_csv" \
+        --spotting_csv "$spotting_csv"
 done

@@ -13,7 +13,7 @@
 
 
 # data/from_video/players_in_frames.csv (正解の選手リスト) を使って、クエリ構築されている前提
-INPUT_FILE="outputs/evaluation-target.jsonl"
+INPUT_FILE="outputs/evaluation-target-w-action.jsonl"
 if [ ! -e "$INPUT_FILE" ]; then
     # data/from_video/players_in_frames_sn_gamestate.csv (選手同定モジュールの選手リスト) を使って、クエリ構築されている前提
     uv run python src/sn_providing/select_evaluation_examples.py \
@@ -21,7 +21,7 @@ if [ ! -e "$INPUT_FILE" ]; then
         --exist_target_txt data/exist_targets.txt \
         --jsonl_filename sn-gamestate-results_spotting_query.jsonl \
         --output_dir outputs \
-        --output_basename evaluation-target
+        --output_basename evaluation-target-w-action
 fi
 
 
@@ -63,3 +63,10 @@ uv run python src/sn_providing/addinfo_retrieval.py \
     --reference_documents_yaml "data/reference_documents/evaluation-samples.yaml"
 
 
+# Badsh: システム全体を動かす + アクション情報を追加
+INPUT_B_FILE="outputs/evaluation-target-w-action.jsonl"
+OUTPUT_B_FILE="outputs/evaluation-target-bdash.jsonl"
+uv run python src/sn_providing/addinfo_retrieval.py \
+    --input_file "$INPUT_B_FILE" \
+    --output_file "$OUTPUT_B_FILE" \
+    --retriever_type "openai-embedding"
