@@ -24,22 +24,22 @@ model_name=gpt-4o
 
 
 # B: システム全体を動かす
-INPUT_FILE="outputs/step2/evaluation-target-sn-gamestate.jsonl"
-OUTPUT_B_FILE="outputs/step3/$model_name/evaluation-target-b.jsonl"
-uv run python src/sn_providing/addinfo_retrieval.py \
-    --input_file "$INPUT_FILE" \
-    --output_file "$OUTPUT_B_FILE" \
-    --retriever_type "openai-embedding"
+# INPUT_FILE="outputs/step2/evaluation-target-sn-gamestate.jsonl"
+# OUTPUT_B_FILE="outputs/step3/$model_name/evaluation-target-b.jsonl"
+# uv run python src/sn_providing/addinfo_retrieval.py \
+#     --input_file "$INPUT_FILE" \
+#     --output_file "$OUTPUT_B_FILE" \
+#     --retriever_type "openai-embedding"
 
 
 # C: 正解の選手リスト、正解の文書を選ぶ
-# INPUT_FILE="outputs/step2/evaluation-target-correct-player-list.jsonl"
-# OUTPUT_C_FILE="outputs/step3/$model_name/evaluation-target-c.jsonl"
-# uv run python src/sn_providing/addinfo_retrieval.py \
-#     --input_file "$INPUT_FILE" \
-#     --output_file "$OUTPUT_C_FILE" \
-#     --retriever_type "openai-embedding" \
-#     --reference_documents_yaml "data/reference_documents/evaluation-samples.yaml"
+INPUT_FILE="outputs/step2/evaluation-target-correct-player-list.jsonl"
+OUTPUT_C_FILE="outputs/step3/$model_name/evaluation-target-c.jsonl"
+uv run python src/sn_providing/addinfo_retrieval.py \
+    --input_file "$INPUT_FILE" \
+    --output_file "$OUTPUT_C_FILE" \
+    --retriever_type "openai-embedding" \
+    --reference_documents_yaml "data/reference_documents/evaluation-samples.yaml"
 
 
 # Bdash: システム全体を動かす + アクション情報を追加

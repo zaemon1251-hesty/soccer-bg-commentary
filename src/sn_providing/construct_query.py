@@ -34,7 +34,7 @@ class SpottingData:
     query: Optional[str] = None
     generated_text: Optional[List[str]] = None
     reference_text: Optional[str] = None
-
+    sample_id: Optional[str] = None
 
 @dataclass
 class SpottingDataList:

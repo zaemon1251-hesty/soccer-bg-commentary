@@ -42,6 +42,7 @@ logging.basicConfig(
 # 正解文書のデータ
 @dataclass
 class ReferenceDoc:
+    id: str
     game: str
     half: str
     time: str
@@ -130,6 +131,7 @@ def run_langchain(
         for doc_data in reference_documents:
             if doc_data.game == game and doc_data.half == half and doc_data.time == time:
                 target_dcument = doc_data.content
+                logger.info(f"Match Reference Document Sample id: {doc_data.id}")
                 break
         return target_dcument
 
@@ -168,7 +170,7 @@ def run_langchain(
         with open(reference_documents_yaml, encoding='utf-8') as file:
             reference_doc_data = yaml.safe_load(file)["samples"]
             reference_doc_data: list[ReferenceDoc] = [
-                ReferenceDoc(v["game"], v["half"], v["time"], v["content"]) for v in reference_doc_data
+                ReferenceDoc(v["id"], v["game"], v["half"], v["time"], v["content"]) for v in reference_doc_data
             ]
         get_reference_documents_partial = partial(get_reference_documents, reference_documents=reference_doc_data)
 
@@ -208,6 +210,7 @@ def run_langchain(
         if reference_doc_data is not None and \
             get_reference_documents_partial(spotting_data.game, spotting_data.half, spotting_data.game_time) is None:
             # 正解文書がない場合はスキップ
+            logger.info(f"skip : {spotting_data.game}, {spotting_data.half}, {spotting_data.game_time}")
             continue
         
         response = rag_chain.invoke(spotting_data)
