@@ -1,12 +1,7 @@
-from collections import namedtuple
-from dataclasses import dataclass
 import os
-import sys
 from datetime import datetime
 from functools import partial
 import logging
-from typing import Literal, TypeVar
-import yaml
 
 from pathlib import Path
 from tap import Tap
@@ -19,7 +14,6 @@ from langchain_core.documents import (
 )
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.retrievers import TFIDFRetriever
 from langchain_core.prompts import PromptTemplate
@@ -27,7 +21,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai.embeddings import OpenAIEmbeddings
 
 
-from sn_providing.construct_query import SpottingDataList
+from sn_providing.entity import SpottingDataList, ReferenceDoc, RetrieverType
 
 #　(project-root)/.env を読み込む
 load_dotenv()
@@ -38,19 +32,6 @@ logging.basicConfig(
     filename="logs/{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
 )
 
-
-# 正解文書のデータ
-@dataclass
-class ReferenceDoc:
-    id: str
-    game: str
-    half: str
-    time: str
-    content: str
-
-
-# 型エイリアス 文書スコアの算出方法方法
-RetrieverType = Literal["tfidf", "openai-embedding"]
 
 
 class Arguments(Tap):
@@ -126,15 +107,6 @@ def run_langchain(
     def format_docs(docs):
         return "\n\n".join(doc.page_content for doc in docs)
 
-    def get_reference_documents(game, half, time, reference_documents: list[ReferenceDoc]):
-        target_dcument = None
-        for doc_data in reference_documents:
-            if doc_data.game == game and doc_data.half == half and doc_data.time == time:
-                target_dcument = doc_data.content
-                logger.info(f"Match Reference Document Sample id: {doc_data.id}")
-                break
-        return target_dcument
-
     def log_documents(docs):
         for doc in docs:
             logger.info(f"Document: {doc.page_content}")
@@ -167,12 +139,8 @@ def run_langchain(
         )
     elif reference_documents_yaml is not None:
         # 正解文書の準備
-        with open(reference_documents_yaml, encoding='utf-8') as file:
-            reference_doc_data = yaml.safe_load(file)["samples"]
-            reference_doc_data: list[ReferenceDoc] = [
-                ReferenceDoc(v["id"], v["game"], v["half"], v["time"], v["content"]) for v in reference_doc_data
-            ]
-        get_reference_documents_partial = partial(get_reference_documents, reference_documents=reference_doc_data)
+        reference_doc_data = ReferenceDoc.get_list_from_yaml(reference_documents_yaml)
+        get_reference_documents_partial = partial(ReferenceDoc.get_reference_documents, reference_documents=reference_doc_data)
 
         rag_chain = (
             {
@@ -186,7 +154,7 @@ def run_langchain(
         )
     else:
         def process_docs(spotting_data):
-            query = lambda _: spotting_data.query
+            query = lambda _: spotting_data.query # noqa
             docs = query | retriever | log_documents | format_docs
             return docs
         rag_chain = (

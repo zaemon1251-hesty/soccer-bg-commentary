@@ -66,3 +66,8 @@ video_data_csv="data/from_video/players_in_frames_sn_gamestate.csv"
 spotting_csv="data/from_video/soccernet_spotting_labels.csv"
 process $video_data_csv $spotting_csv sn-gamestate-w-action
 
+# outputs/step1/evaluation-target-correct-player-list-w-action.jsonl 用のゲームごとのクエリ (Option 4)
+video_data_csv="data/from_video/players_in_frames_sn_gamestate.csv"
+spotting_csv="data/from_video/soccernet_spotting_labels.csv"
+process $video_data_csv $spotting_csv correct-player-list-w-action
+
