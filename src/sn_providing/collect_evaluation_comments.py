@@ -48,20 +48,18 @@ def main(args: Arguments):
             )
             if reference_doc is not None:
                 sample_id = reference_doc.id
-                result_list.append(
-                        {
-                            "sample_id": sample_id,
-                            "approach": approach,
-                            "generated_text": spotting_data.generated_text,
-                            "game": spotting_data.game,
-                            "half": spotting_data.half,
-                            "time": spotting_data.game_time
-                        }
-                )
+                result_list.append({"sample_id": sample_id,
+                                    "approach": approach,
+                                    "generated_text": spotting_data.generated_text,
+                                    "game": spotting_data.game,
+                                    "half": spotting_data.half,
+                                    "time": spotting_data.game_time})
+
     os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
     result_df = pd.DataFrame(result_list).sort_values(by=["sample_id", "approach"])
     result_df.to_csv(args.output_file, index=False)
-    
+
+
 if __name__ == "__main__":
     args = Arguments().parse_args()
     main(args)

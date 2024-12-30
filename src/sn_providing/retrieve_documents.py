@@ -1,9 +1,9 @@
-from addinfo_retrieval import (
+from sn_providing.addinfo_retrieval import (
     get_retriever_langchain, 
     PERSIST_LANGCHAIN_DIR,
     RetrieverType,
 )
-from construct_query import CommentDataList
+from sn_providing.entity import CommentDataList
 from tap import Tap
 import time
 

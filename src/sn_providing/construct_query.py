@@ -114,7 +114,7 @@ def run(args: Arguments):
         
         if video_data is not None:
             video_data_dict = video_data.get_data(args.game, spotting_data.half, spotting_data.game_time)
-            query_args["player_team_names"] = video_data_dict["player_team_names"]
+            query_args["players"] = video_data_dict["players"]
             query_args["actions"] = video_data_dict["actions"]
         
         query = build_query(**query_args)

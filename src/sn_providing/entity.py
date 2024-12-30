@@ -64,6 +64,7 @@ class SpottingDataList:
         json.dump([s.__dict__ for s in self.spottings], open(output_file, "w"), ensure_ascii=False)    
     
     def to_jsonline(self, output_file: str):
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
         with open(output_file, 'w') as f:
             for s in self.spottings:
                 f.write(json.dumps(s.__dict__, ensure_ascii=False) + "\n")
@@ -184,7 +185,7 @@ class VideoData:
         
         # データを読み込み
         self.player_df = pd.read_csv(player_csv)
-        assert {"game", "half", "time", "team", "name"}.issubset(set(self.player_df.columns))
+        assert {"game", "half", "time", "team", "name", "jersey_number"}.issubset(set(self.player_df.columns))
         
         self.spotting_df = None
         if spotting_csv is not None:
@@ -193,7 +194,7 @@ class VideoData:
             
     def get_data(self, game: str, half: int, game_time: int) -> dict[str, str]:
         result_dict = {
-            "player_team_names": None,
+            "players": None,
             "actions": None
         }
 
@@ -204,11 +205,15 @@ class VideoData:
             (self.player_df["time"] >= game_time - self.sec_window_player) & \
             (self.player_df["time"] <= game_time + self.sec_window_player)
         ]
-        # team name と player name をuniqeuに取得
-        player_team_names = spot_players_df[['team', 'name']].drop_duplicates().to_dict(orient='records')
+        # team name と player name, jersey number を unique に取得
+        player_dict = (
+            spot_players_df[['name', 'team', 'jersey_number']]
+            .drop_duplicates()
+            .to_dict(orient='records')
+        )
         
         if self.spotting_df is None:
-            result_dict["player_team_names"] = player_team_names
+            result_dict["players"] = player_dict
             return result_dict
         
         # sec_window 秒前までのアクションを取得
@@ -221,10 +226,17 @@ class VideoData:
         # action を取得
         actions = spot_action_df["label"].to_list()
         
-        result_dict["player_team_names"] = player_team_names
+        result_dict["players"] = player_dict
         result_dict["actions"] = actions
         return result_dict
     
+    def show_player_data(self, game: str, half: int, game_time: int):
+        result_dict = self.get_data(game, half, game_time)
+        player_dict = result_dict["players"]
+        tmp_player_df = pd.DataFrame(player_dict)
+        # csv 形式で表示
+        print(tmp_player_df.to_csv(index=False))
+
     @staticmethod
     def _preprocess_spotting_df(spotting_df: pd.DataFrame) -> pd.DataFrame:
         # 前処理
@@ -278,7 +290,6 @@ class ReferenceDoc:
                 logger.info(f"Match Reference Document Sample id: {doc_data.id}")
                 break
         return target_doc
-
 
 
 # 型エイリアス 文書スコアの算出方法方法

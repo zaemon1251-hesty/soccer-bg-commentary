@@ -61,10 +61,10 @@ SEARCH_CONFIG = {
 INSTRUCTION = \
 """You are a professional color commentator for a live broadcast of soccer. 
 Using the documents below, 
-provide one concise fact, such as player records or team statistics, relevant to the current soccer match. 
+provide a comment with a fact, such as player records or team statistics, relevant to the current soccer match. 
 The fact should be clear, accurate, and suitable for live commentary. 
 The game date will be given as YYYY-MM-DD. Do not use information dated after this.
-Generate the comment considering that it follows the previous comments."""
+Generate one simple comment considering that it follows the previous comments."""
 
 # No retrievalの場合のプロンプト
 prompt_template_no_retrieval = \
@@ -73,7 +73,7 @@ prompt_template_no_retrieval = \
 ===
 {query}
 
-Answer:"""
+Comment:"""
 
 # documentが与えられる場合のプロンプト
 prompt_template = \
@@ -84,7 +84,7 @@ prompt_template = \
 ===
 {query}
 
-Answer:"""
+Comment:"""
 
 # 知識ベースのデータ保存場所
 DOCUMENT_DIR = Path("./data/addinfo_retrieval")
@@ -190,7 +190,10 @@ def run_langchain(
     result_list.to_jsonline(output_file)
 
 
-def get_retriever_langchain(type: RetrieverType, langchain_store_dir: Path) -> BaseRetriever:
+def get_retriever_langchain(
+    type: RetrieverType, 
+    langchain_store_dir: Path
+) -> BaseRetriever:
     if type == "tfidf":
         if not os.path.exists(langchain_store_dir):
             # インデックスの構築
@@ -250,9 +253,14 @@ if __name__ == "__main__":
     args = Arguments().parse_args()
 
     spotting_data_list = SpottingDataList.from_jsonline(args.input_file)
-    
+
     if args.no_retrieval:
         INSTRUCTION = INSTRUCTION.replace("Using the documents below,", "")
-    
-    run_langchain(spotting_data_list, args.output_file, args.retriever_type, args.no_retrieval, args.reference_documents_yaml)
 
+    run_langchain(
+        spotting_data_list, 
+        args.output_file, 
+        args.retriever_type, 
+        args.no_retrieval, 
+        args.reference_documents_yaml
+    )
