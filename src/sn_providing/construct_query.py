@@ -4,7 +4,7 @@ from datetime import datetime
 
 from sn_providing.entity import CommentDataList, SpottingDataList, VideoData
 
-logger.add("logs/{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")))
+# logger.add("logs/{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")))
 logger.level("DEBUG")
 
 class Arguments(Tap):
@@ -46,8 +46,8 @@ def build_query(
     query = "Previous comments: " + query
     
     # 映像中に映っている選手の名前を取得
-    if kwargs.get("player_team_names"):
-        team_game_str = ", ".join([f"{p['name']} from {p['team']}" for p in kwargs['player_team_names']])
+    if kwargs.get("players"):
+        team_game_str = ", ".join([f"{p['name']} from {p['team']}" for p in kwargs['players']])
         query = f"Players shown in this frame: {team_game_str}\n" + query
 
     # 試合情報を取得

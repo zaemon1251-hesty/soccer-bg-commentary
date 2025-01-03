@@ -61,11 +61,10 @@ SEARCH_CONFIG = {
 INSTRUCTION = \
 """You are a professional color commentator for a live broadcast of soccer. 
 Using the documents below, 
-provide a comment with a fact, such as player records or team statistics, relevant to the current soccer match. 
-The fact should be clear, accurate, and suitable for live commentary. 
+provide just one comment with a fact, such as player records or team statistics, relevant to the current soccer match. 
+The comment should be clear, accurate, and suitable for live commentary. 
 The game date will be given as YYYY-MM-DD. Do not use information dated after this.
-Generate one simple comment considering that it follows the previous comments."""
-
+This comment should be natural comments following the previous comments given to the prompt."""
 # No retrievalの場合のプロンプト
 prompt_template_no_retrieval = \
 """{instruction}

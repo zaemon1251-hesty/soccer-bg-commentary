@@ -146,7 +146,7 @@ class CommentDataList:
         comments: "CommentDataList", 
         half: int, 
         game_time: str, 
-        seconds_before: int = 60
+        seconds_before: int = 20
     ) -> "CommentDataList":
         """
         seconds_before 秒前から game_time までのコメントを取得
