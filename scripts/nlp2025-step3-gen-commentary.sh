@@ -35,11 +35,11 @@ OUTPUT_B_FILE="outputs/step3/$model_name/evaluation-target-b.jsonl"
 # C: 正解の選手リスト、正解の文書を選ぶ
 INPUT_FILE="outputs/step2/evaluation-target-correct-player-list.jsonl"
 OUTPUT_C_FILE="outputs/step3/$model_name/evaluation-target-c.jsonl"
-# uv run python src/sn_providing/addinfo_retrieval.py \
-#     --input_file "$INPUT_FILE" \
-#     --output_file "$OUTPUT_C_FILE" \
-#     --retriever_type "openai-embedding" \
-#     --reference_documents_yaml "data/reference_documents/evaluation-samples.yaml"
+uv run python src/sn_providing/addinfo_retrieval.py \
+    --input_file "$INPUT_FILE" \
+    --output_file "$OUTPUT_C_FILE" \
+    --retriever_type "openai-embedding" \
+    --reference_documents_yaml "data/reference_documents/evaluation-samples.yaml"
 
 
 # Astar: ドキュメント検索せず、LLMに任せる + アクション情報を追加
@@ -69,3 +69,12 @@ uv run python src/sn_providing/addinfo_retrieval.py \
     --output_file "$OUTPUT_Cstar_FILE" \
     --retriever_type "openai-embedding" \
     --reference_documents_yaml "data/reference_documents/evaluation-samples.yaml"
+
+
+# Bsharp: 正解の選手リスト + 文書抽出 + アクション情報を追加
+INPUT_FILE="outputs/step2/evaluation-target-correct-player-list-w-action.jsonl"
+OUTPUT_Bsharp_FILE="outputs/step3/$model_name/evaluation-target-b-sharp.jsonl"
+uv run python src/sn_providing/addinfo_retrieval.py \
+    --input_file "$INPUT_FILE" \
+    --output_file "$OUTPUT_Bsharp_FILE" \
+    --retriever_type "openai-embedding" \

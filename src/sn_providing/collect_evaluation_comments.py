@@ -12,6 +12,7 @@ class Arguments(Tap):
     input_c_file: str
     input_a_star_file: str
     input_b_star_file: str
+    input_b_sharp_file: str
     input_c_star_file: str
     output_file: str
     reference_documents_yaml: str 
@@ -25,6 +26,7 @@ def main(args: Arguments):
     input_c_data_list = SpottingDataList.from_jsonline(args.input_c_file)
     input_a_star_data_list = SpottingDataList.from_jsonline(args.input_a_star_file)
     input_b_star_data_list = SpottingDataList.from_jsonline(args.input_b_star_file)
+    input_b_sharp_data_list = SpottingDataList.from_jsonline(args.input_b_sharp_file)
     input_c_star_data_list = SpottingDataList.from_jsonline(args.input_c_star_file)
     
     all_data_dict = {
@@ -33,7 +35,8 @@ def main(args: Arguments):
         "c": input_c_data_list,
         "a_star": input_a_star_data_list,
         "b_star": input_b_star_data_list,
-        "c_star": input_c_star_data_list
+        "c_star": input_c_star_data_list,
+        "b_sharp": input_b_sharp_data_list,
     }
     
     result_list = []

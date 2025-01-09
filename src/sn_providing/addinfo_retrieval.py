@@ -5,7 +5,6 @@ import logging
 
 from pathlib import Path
 from tap import Tap
-from loguru import logger
 from dotenv import load_dotenv
 
 from langchain_openai import ChatOpenAI as LangChainOpenAI
@@ -62,7 +61,7 @@ INSTRUCTION = \
 """You are a professional color commentator for a live broadcast of soccer. 
 Using the documents below, 
 provide just one comment with a fact, such as player records or team statistics, relevant to the current soccer match. 
-The comment should be clear, accurate, and suitable for live commentary. 
+The comment should be short, clear, accurate, and suitable for live commentary. 
 The game date will be given as YYYY-MM-DD. Do not use information dated after this.
 This comment should be natural comments following the previous comments given to the prompt."""
 # No retrievalの場合のプロンプト
@@ -108,11 +107,11 @@ def run_langchain(
 
     def log_documents(docs):
         for doc in docs:
-            logger.info(f"Document: {doc.page_content}")
+            logging.info(f"Document: {doc.page_content}")
         return docs
 
     def log_prompt(prompt: str) -> str:
-        logger.info(f"Overall Prompt: {prompt}")
+        logging.info(f"Overall Prompt: {prompt}")
         return prompt
 
     retriever = get_retriever_langchain(retriever_type, langchain_store_dir=PERSIST_LANGCHAIN_DIR)
@@ -170,21 +169,21 @@ def run_langchain(
     # run
     result_list = SpottingDataList([])
     for spotting_data in spotting_data_list.spottings:
-        logger.info(f"Query: {spotting_data.query}")
+        logging.info(f"Query: {spotting_data.query}")
         if spotting_data.query is None:
             continue
         
         if reference_doc_data is not None and \
             get_reference_documents_partial(spotting_data.game, spotting_data.half, spotting_data.game_time) is None:
             # 正解文書がない場合はスキップ
-            logger.info(f"skip : {spotting_data.game}, {spotting_data.half}, {spotting_data.game_time}")
+            logging.info(f"skip : {spotting_data.game}, {spotting_data.half}, {spotting_data.game_time}")
             continue
         
         response = rag_chain.invoke(spotting_data)
         spotting_data.generated_text = response
         result_list.spottings.append(spotting_data)
         
-        logger.info(f"Response: {response}")
+        logging.info(f"Response: {response}")
     # save
     result_list.to_jsonline(output_file)
 

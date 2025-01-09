@@ -21,6 +21,9 @@ class SpottingData:
     generated_text: Optional[List[str]] = None
     reference_text: Optional[str] = None
     sample_id: Optional[str] = None
+    documents: Optional[str] = None
+    player_names: Optional[str] = None
+    actions: Optional[str] = None
 
 
 @dataclass
