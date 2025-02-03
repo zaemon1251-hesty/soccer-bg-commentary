@@ -69,6 +69,7 @@ provide just one comment with a fact, such as player records or team statistics,
 The comment should be short, clear, accurate, and suitable for live commentary. 
 The game date will be given as YYYY-MM-DD. Do not use information dated after this.
 This comment should be natural comments following the previous comments given to the prompt."""
+
 # No retrievalの場合のプロンプト
 prompt_template_no_retrieval = """{instruction}
 
@@ -94,7 +95,7 @@ DOCUMENT_DIR = Path("./data/addinfo_retrieval")
 PERSIST_LANGCHAIN_DIR = Path("./storage/langchain-embedding-ada002")
 
 
-def run_langchain(
+def run(
     spotting_data_list: SpottingDataList,
     output_file: str,
     retriever_type: RetrieverType,
@@ -120,13 +121,73 @@ def run_langchain(
         logging.info(f"Overall Prompt: {prompt}")
         return prompt
 
-    retriever = get_retriever_langchain(
-        retriever_type, langchain_store_dir=PERSIST_LANGCHAIN_DIR
+    # レトリバの取得
+    retriever = get_retriever(
+        retriever_type,
+        langchain_store_dir=PERSIST_LANGCHAIN_DIR,
+        embedding_config=embedding_config,
+        search_config=search_config,
     )
 
-    llm = LangChainOpenAI(**MODEL_CONFIG)
+    llm = LangChainOpenAI(**model_config)
 
-    # リファレンスドキュメントが与えられた場合使う
+    # チェーンの構築
+    rag_chain, reference_doc_data, get_reference_documents_partial = get_rag_chain(
+        retriever=retriever,
+        llm=llm,
+        no_retrieval=no_retrieval,
+        reference_documents_yaml=reference_documents_yaml,
+        log_documents=log_documents,
+        log_prompt=log_prompt,
+        format_docs=format_docs,
+    )
+
+    # 実行 (rag_chain は spotting_data を受け取って text を返す)
+    result_list = SpottingDataList([])
+    for spotting_data in spotting_data_list.spottings:
+        logging.info(f"Query: {spotting_data.query}")
+        if spotting_data.query is None:
+            continue
+
+        if (
+            reference_doc_data is not None
+            and get_reference_documents_partial(
+                spotting_data.game, spotting_data.half, spotting_data.game_time
+            )
+            is None
+        ):
+            # 正解文書がない場合はスキップ
+            logging.info(
+                f"skip : {spotting_data.game}, {spotting_data.half}, {spotting_data.game_time}"
+            )
+            continue
+
+        response = rag_chain.invoke(spotting_data)
+        spotting_data.generated_text = response
+        result_list.spottings.append(spotting_data)
+
+        logging.info(f"Response: {response}")
+    # save
+    result_list.to_jsonline(output_file)
+
+
+def get_rag_chain(retriever, llm, **kwargs):
+    """
+    rag_chainを構築する
+
+    return:
+        rag_chain: langchainのチェーン
+        reference_doc_data: 正解文書のデータ
+        get_reference_documents_partial: 正解文書を取得する関数
+    """
+    no_retrieval = kwargs.get("no_retrieval", False)
+    reference_documents_yaml = kwargs.get("reference_documents_yaml", None)
+
+    # ログ関数
+    log_documents = kwargs.get("log_documents", lambda: None)
+    log_prompt = kwargs.get("log_prompt", lambda: None)
+    format_docs = kwargs.get("format_docs", None)
+
     reference_doc_data = None
     get_reference_documents_partial = None
 
@@ -180,43 +241,20 @@ def run_langchain(
             | llm
             | StrOutputParser()
         )
-
-    # run
-    result_list = SpottingDataList([])
-    for spotting_data in spotting_data_list.spottings:
-        logging.info(f"Query: {spotting_data.query}")
-        if spotting_data.query is None:
-            continue
-
-        if (
-            reference_doc_data is not None
-            and get_reference_documents_partial(
-                spotting_data.game, spotting_data.half, spotting_data.game_time
-            )
-            is None
-        ):
-            # 正解文書がない場合はスキップ
-            logging.info(
-                f"skip : {spotting_data.game}, {spotting_data.half}, {spotting_data.game_time}"
-            )
-            continue
-
-        response = rag_chain.invoke(spotting_data)
-        spotting_data.generated_text = response
-        result_list.spottings.append(spotting_data)
-
-        logging.info(f"Response: {response}")
-    # save
-    result_list.to_jsonline(output_file)
+    return rag_chain, reference_doc_data, get_reference_documents_partial
 
 
-def get_retriever_langchain(
-    type: RetrieverType, langchain_store_dir: Path
+def get_retriever(
+    type: RetrieverType,
+    langchain_store_dir: Path,
+    embedding_config: dict = EMBEDDING_CONFIG,
+    search_config: dict = SEARCH_CONFIG,
+    document_dir: Path = DOCUMENT_DIR,
 ) -> BaseRetriever:
     if type == "tfidf":
         if not os.path.exists(langchain_store_dir):
             # インデックスの構築
-            splits = get_document_splits(DOCUMENT_DIR)
+            splits = get_document_splits(document_dir)
             retriever = TFIDFRetriever.from_documents(splits)
             # 保存
             retriever.save_local(folder_path=langchain_store_dir)
@@ -225,20 +263,20 @@ def get_retriever_langchain(
             retriever = TFIDFRetriever.load_local(
                 folder_path=langchain_store_dir, allow_dangerous_deserialization=True
             )
-        retriever.k = SEARCH_CONFIG["k"]
+        retriever.k = embedding_config["k"]
         return retriever
     elif type == "openai-embedding":
-        embeddings = OpenAIEmbeddings(**EMBEDDING_CONFIG)
+        embeddings = OpenAIEmbeddings(**embedding_config)
         if not os.path.exists(langchain_store_dir):
             # インデックスの構築
-            splits = get_document_splits(DOCUMENT_DIR)
+            splits = get_document_splits(document_dir)
 
             vectorstore = FAISS.from_documents(documents=splits, embedding=embeddings)
             retriever = vectorstore.as_retriever(
                 search_type="similarity_score_threshold",
                 search_kwargs={
-                    "score_threshold": EMBEDDING_CONFIG["score_threshold"],
-                    "k": EMBEDDING_CONFIG["k"],
+                    "score_threshold": embedding_config["score_threshold"],
+                    "k": embedding_config["k"],
                 },
             )
             # 保存
@@ -251,7 +289,7 @@ def get_retriever_langchain(
                 allow_dangerous_deserialization=True,
             )
             retriever = vectorstore.as_retriever(
-                search_type="similarity_score_threshold", search_kwargs=SEARCH_CONFIG
+                search_type="similarity_score_threshold", search_kwargs=search_config
             )
         return retriever
     else:
@@ -308,7 +346,7 @@ if __name__ == "__main__":
     if args.no_retrieval:
         INSTRUCTION = INSTRUCTION.replace("Using the documents below,", "")
 
-    run_langchain(
+    run(
         spotting_data_list,
         args.output_file,
         args.retriever_type,
