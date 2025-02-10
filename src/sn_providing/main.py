@@ -26,7 +26,6 @@ from sn_providing.addinfo_retrieval import (
 load_dotenv()
 
 
-
 # ロガーの設定
 time_string = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 logger = logging.getLogger(__name__)
@@ -59,48 +58,59 @@ def get_utterance_length(utterance: str):
     return  time
 
 
-def generate_commentary_for_demo(
-    game: str, 
-    half: int, 
-    start: float, 
-    end: float,
-    comment_csv: str,
-    video_csv: str,
-    label_csv: str
-):
-    """
-    デモ動画のための実況を生成する
-    """
-    # スポッティングモジュール関連
-    spotting_params = MainV2Argument().as_dict()
-    spotting_model = SpottingModule(spotting_params)
-    
-    # 選手同定+ragモジュール関連
-    game_metadata = SpottingDataList.extract_data_from_game(game)
-    gold_comment_data = CommentDataList.read_csv(comment_csv) # 映像の説明のモック用・comment_data_listのコメント履歴が使い物にならない時に，検索クエリを補強する用
-    video_data = VideoData(video_csv, label_csv=label_csv)
-    llm = LangChainOpenAI(**MODEL_CONFIG)
-    retriever = get_retriever(
-        "openai-embedding",
-        langchain_store_dir=PERSIST_LANGCHAIN_DIR,
-        embedding_config=EMBEDDING_CONFIG,
-        search_config=SEARCH_CONFIG,
-    )
-    _, _, rag_chain = get_rag_chain(
-        retriever=retriever, langchain=llm
-    )
-    
-    def build_query_for_demo(comment_data_list, game, half, time, game_metadata):
-        filtered_comment_list = CommentDataList.filter_by_half_and_time(
-            comment_data_list, half, time
+class DemoRunner:
+    def __init__(
+        self,
+        game: str, 
+        half: int, 
+        comment_csv: str,
+        video_csv: str,
+        label_csv: str
+    ):
+        """
+        デモ動画のための実況を生成する
+        """
+        # スポッティングモジュール関連
+        spotting_params = MainV2Argument().as_dict()
+        spotting_model = SpottingModule(spotting_params)
+        
+        # 選手同定+ragモジュール関連
+        game_metadata = SpottingDataList.extract_data_from_game(game)
+        gold_comment_data_list: CommentDataList = CommentDataList.read_csv(comment_csv, game) # 映像の説明のモック用・comment_data_listのコメント履歴が使い物にならない時に，検索クエリを補強する用
+        video_data = VideoData(video_csv, label_csv=label_csv)
+        llm = LangChainOpenAI(**MODEL_CONFIG)
+        retriever = get_retriever(
+            "openai-embedding",
+            langchain_store_dir=PERSIST_LANGCHAIN_DIR,
+            embedding_config=EMBEDDING_CONFIG,
+            search_config=SEARCH_CONFIG,
         )
-        video_data_dict = video_data.get_data(
-            game, half, time
+        _, _, rag_chain = get_rag_chain(
+            retriever=retriever, langchain=llm
+        )
+        
+        # メンバー変数
+        self.game = game
+        self.half = half
+        self.gold_comment_data_list = gold_comment_data_list
+        self.video_data = video_data
+        self.spotting_model = spotting_model
+        self.game_metadata = game_metadata
+        self.rag_chain = rag_chain
+        
+        
+    def build_query_for_demo(self, comment_data_list, time):
+        """ game, half, game_metadata, video_data は関数内で定義された変数を用いる  """
+        filtered_comment_list = CommentDataList.filter_by_half_and_time(
+            comment_data_list, self.half, time
+        )
+        video_data_dict = self.video_data.get_data(
+            self.game, self.half, time
         )
 
         query_args = {
             "comments": filtered_comment_list,
-            "game_metadata": game_metadata,
+            "game_metadata": self.game_metadata,
             "players": video_data_dict["players"],
             "actions": video_data_dict["actions"]
         }
@@ -108,55 +118,101 @@ def generate_commentary_for_demo(
         query = build_query(**query_args)
         return query
 
-    
-    # 終了条件
-    finish_time = end
-
-    # ループ中に変更が加わる変数
-    prev_end = start
-    comment_data_list = CommentDataList([]) # ここに生成したコメントを順々に履歴として追加していく
-
-    while 1:
-        # 1ループ: 
-        ## スポッティング
-        next_ts, next_label = spotting_model(
-            previous_t=prev_end, current_t=finish_time, game=game, half=half
-        )
-        
-        if next_label == 0: # 映像の説明
-            # TODO 1 まずモックとして，近傍の映像の説明を取得する処理を実装
-            # TODO 2 tanaka-san の Integrate System を使って，映像の説明を取得する
-            
-            # 発話開始時間, 発話終了時間を設定
-            next_start = next_ts
-            next_end = next_ts + 1.0 
-
-        elif next_label == 1: # 付加的情報
-            # コメント生成
-            query = build_query_for_demo(
-                comment_data_list, game, half, next_ts, game_metadata
-            )
-            response = rag_chain.invoke(
-                query=query, retriever=retriever, langchain=llm
-            )
-
-            # 発話開始時間, 発話終了時間を設定
-            next_start = next_ts
-            next_end = next_ts + get_utterance_length(response)
-
-            # コメント履歴に追加
-            comment_data_list.comments.append(
-                CommentData(
-                    half=half, start_time=next_start, text=response, category=next_label
-                )
-            )
-
-        # 次のループのために更新
-        prev_end = next_end
-
+    def run(
+        self,
+        start: float, 
+        end: float,
+    ):
         # 終了条件
-        if finish_time <= prev_end:
-            break
+        finish_time = end
+
+        # ループ中に変更が加わる変数
+        prev_end = start
+        comment_data_list = CommentDataList([]) # ここに生成したコメントを順々に履歴として追加していく
+        
+        # 文脈情報として使うため，gold_comment_data_list に含まれる，start までの comment を追加
+        for comment in self.gold_comment_data_list.comments:
+            if comment.half ==self. half and comment.end_time < start:
+                comment_data_list.comments.append(comment)
+        
+        while 1:
+            ## スポッティング
+            next_ts, next_label = self.spotting_model(
+                previous_t=prev_end, game=self.game, half=self.half
+            )
+            
+            if next_label == 0: # 映像の説明
+                # まずモックとして，近傍の映像の説明を取得する
+                comment = self.gold_comment_data_list.get_comment_nearest_time(next_ts)
+                
+                # TODO 上記の実装をコメントアウトし，tanaka-san の Integrate System を使って映像の説明を生成する
+                
+                # 発話開始時間, 発話終了時間を設定
+                next_start = next_ts
+                next_end = next_ts + get_utterance_length(comment)
+                
+                # コメント履歴に追加
+                comment_data_list.comments.append(
+                    CommentData(
+                        half=self.half, start_time=next_start, end_time=next_end,
+                        text=comment, category=next_label
+                    )
+                )
+
+            elif next_label == 1: # 付加的情報
+                # 付加的情報を生成
+                query = self.build_query_for_demo(
+                    comment_data_list, next_ts
+                )
+                spot = SpottingData(
+                    game=self.game, 
+                    half=self.half, 
+                    category=next_label, 
+                    game_time=next_ts, 
+                    query=query,
+                    position=int(next_ts)*1000,
+                    confidence=1.
+                )
+                response = self.rag_chain.invoke(spot)
+
+                # 発話開始時間, 発話終了時間を設定
+                next_start = next_ts
+                next_end = next_ts + get_utterance_length(response)
+
+                # コメント履歴に追加
+                comment_data_list.comments.append(
+                    CommentData(
+                        half=self.half, start_time=next_start, end_time=next_end,
+                        text=response, category=next_label
+                    )
+                )
+            else:
+                raise RuntimeError(f"無効な発話ラベルです: {next_label}")
+
+            # 次のループのために更新
+            prev_end = next_end
+
+            # 終了条件
+            if finish_time <= prev_end:
+                break
+        
+        # 文脈情報として使うためにいれたgold_comment_data_listのコメントを削除
+        for comment in self.gold_comment_data_list.comments:
+            if comment.half == self.half and comment.start_time < start:
+                comment_data_list.comments.remove(comment)
+        
+        # 保存
+        comment_data_list.to_jsonline("outputs/demo-step2/commentary.jsonl")
+
+
+if __name__ == "__main__":
+    args = MainArgument().parse_args()
     
-    # 生成したコメントを保存
-    comment_data_list.to_jsonline("outputs/demo-step2/commentary.jsonl")
+    demo_runner = DemoRunner(
+        args.game, args.half,
+        "outputs/demo-step1/commentary.csv",
+        "outputs/demo-step1/video.csv",
+        "outputs/demo-step1/label.csv"
+    )
+    
+    demo_runner.run(args.start, args.end)

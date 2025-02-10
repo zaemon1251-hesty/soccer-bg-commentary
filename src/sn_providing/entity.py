@@ -111,6 +111,7 @@ class CommentData:
     start_time: int
     text: str
     category: str
+    end_time: Optional[int] = None
 
 
 @dataclass
@@ -167,6 +168,15 @@ class CommentDataList:
             if comment.start_time == game_time:
                 return comment.text
         return None
+
+    def get_comment_nearest_time(self, game_time: int, thres: float = 15.) -> str:
+        diff = float("inf")
+        nearest_comment = None
+        for comment in self.comments:
+            if abs(comment.start_time - game_time) < min(diff, thres):
+                diff = abs(comment.start_time - game_time)
+                nearest_comment = comment.text
+        return nearest_comment
     
     def show_times(self, head: Optional[int] = None):
         head = head if head else len(self.comments)
