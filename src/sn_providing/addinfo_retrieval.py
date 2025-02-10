@@ -28,7 +28,7 @@ load_dotenv()
 # llama_index,langchain のログを標準出力に出す
 logging.basicConfig(
     level=logging.DEBUG,
-    filename="logs/{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")),
+    filename="logs/addinfo--{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")),
 )
 
 
@@ -186,7 +186,7 @@ def get_rag_chain(retriever, llm, **kwargs):
     # ログ関数
     log_documents = kwargs.get("log_documents", lambda: None)
     log_prompt = kwargs.get("log_prompt", lambda: None)
-    format_docs = kwargs.get("format_docs", None)
+    format_docs = kwargs.get("format_docs", lambda: None)
 
     reference_doc_data = None
     get_reference_documents_partial = None

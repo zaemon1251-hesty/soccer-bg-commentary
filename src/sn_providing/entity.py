@@ -173,12 +173,22 @@ class CommentDataList:
         for s in self.comments[:head]:
             logger.info(f"{s.half=}, {s.start_time=}")
 
+    def to_json(self, output_file: str):
+        json.dump([s.__dict__ for s in self.comments], open(output_file, "w"), ensure_ascii=False)    
+    
+    def to_jsonline(self, output_file: str):
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_file, 'w') as f:
+            for s in self.comments:
+                f.write(json.dumps(s.__dict__, ensure_ascii=False) + "\n")
+    
+
 
 class VideoData:
     def __init__(
         self, 
         player_csv: Path, 
-        spotting_csv: Path = None, 
+        label_csv: Path = None, # イベント カメラ　など
         sec_window_player: int = 2, 
         sec_window_action: int = 15
     ):
@@ -190,9 +200,9 @@ class VideoData:
         self.player_df = pd.read_csv(player_csv)
         assert {"game", "half", "time", "team", "name", "jersey_number"}.issubset(set(self.player_df.columns))
         
-        self.spotting_df = None
-        if spotting_csv is not None:
-            self.spotting_df = self._preprocess_spotting_df(pd.read_csv(spotting_csv))
+        self.label_df = None
+        if label_csv is not None:
+            self.label_df = self._preprocess_spotting_df(pd.read_csv(label_csv))
             assert {"game", "half", "time", "label"}.issubset(set(self.spotting_df.columns))
             
     def get_data(self, game: str, half: int, game_time: int) -> dict[str, str]:
@@ -215,16 +225,16 @@ class VideoData:
             .to_dict(orient='records')
         )
         
-        if self.spotting_df is None:
+        if self.label_df is None:
             result_dict["players"] = player_dict
             return result_dict
         
         # sec_window 秒前までのアクションを取得
-        spot_action_df: pd.DataFrame = self.spotting_df.loc[
-            (self.spotting_df["half"] == half) & \
-            (self.spotting_df["game"] == game) & \
-            (self.spotting_df["time"] <= game_time) & \
-            (self.spotting_df["time"] >= game_time - self.sec_window)
+        spot_action_df: pd.DataFrame = self.label_df.loc[
+            (self.label_df["half"] == half) & \
+            (self.label_df["game"] == game) & \
+            (self.label_df["time"] <= game_time) & \
+            (self.label_df["time"] >= game_time - self.sec_window)
         ].sort_values("time", ascending=True)
         # action を取得
         actions = spot_action_df["label"].to_list()
