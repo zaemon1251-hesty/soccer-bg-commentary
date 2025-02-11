@@ -25,6 +25,7 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "faiss-cpu>=1.8.0.post1",
     "beautifulsoup4>=4.12.3",
+    "polars>=1.22.0",
 ]
 
 [build-system]

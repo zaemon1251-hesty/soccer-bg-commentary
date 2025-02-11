@@ -105,7 +105,7 @@ class SpottingDataList:
         }
 
 
-@dataclass
+@dataclass(eq=True)
 class CommentData:
     half: int
     start_time: int
@@ -114,7 +114,7 @@ class CommentData:
     end_time: Optional[int] = None
 
 
-@dataclass
+@dataclass(eq=True)
 class CommentDataList:
     comments: List[CommentData]
     
@@ -140,7 +140,7 @@ class CommentDataList:
         comment_df = comment_df.sort_values("start")
         comments = []
         for i, row in comment_df.iterrows():
-            comment = CommentData(int(row["half"]), int(row["start"]), row["text"], str(row["付加的情報か"]))
+            comment = CommentData(int(row["half"]), int(row["start"]), row["text"], str(row["付加的情報か"]),end_time=int(row["end"]))
             comments.append(comment)
         
         return CommentDataList(comments)
@@ -209,11 +209,12 @@ class VideoData:
         # データを読み込み
         self.player_df = pd.read_csv(player_csv)
         assert {"game", "half", "time", "team", "name", "jersey_number"}.issubset(set(self.player_df.columns))
+        self.player_df["time"] = self.player_df["time"].apply(self.gametime_to_seconds)
         
         self.label_df = None
         if label_csv is not None:
-            self.label_df = self._preprocess_spotting_df(pd.read_csv(label_csv))
-            assert {"game", "half", "time", "label"}.issubset(set(self.spotting_df.columns))
+            self.label_df = self._preprocess_label_df(pd.read_csv(label_csv))
+            assert {"game", "half", "time", "label"}.issubset(set(self.label_df.columns))
             
     def get_data(self, game: str, half: int, game_time: int) -> dict[str, str]:
         result_dict = {
@@ -261,18 +262,26 @@ class VideoData:
         print(tmp_player_df.to_csv(index=False))
 
     @staticmethod
-    def _preprocess_spotting_df(spotting_df: pd.DataFrame) -> pd.DataFrame:
+    def _preprocess_label_df(label_df: pd.DataFrame) -> pd.DataFrame:
         # 前処理
-        spotting_df["half"] = spotting_df["gameTime"].str.split(" - ").str[0].astype(float)
-        spotting_df["time"] = spotting_df["gameTime"].str.split(" - ").str[1].map(VideoData.gametime_to_seconds).astype(float)
-        spotting_df["game"] = spotting_df["game"].str.rstrip("/")
-        return spotting_df
+        label_df["half"] = label_df["gameTime"].str.split(" - ").str[0].astype(float)
+        label_df["time"] = label_df["gameTime"].str.split(" - ").str[1].map(VideoData.gametime_to_seconds).astype(float)
+        label_df["game"] = label_df["game"].str.rstrip("/")
+        return label_df
 
     @staticmethod
     def gametime_to_seconds(gametime):
+        if isinstance(gametime, int) or isinstance(gametime, float):
+            return gametime
+        
+        if gametime.count(":") == 0:
+            return float(gametime)
+        
         if gametime.count(":") == 2:
             gametime = ":".join(gametime.split(":")[:2])
+        
         m, s = gametime.split(":")
+        
         return int(m) * 60 + int(s)
 
 

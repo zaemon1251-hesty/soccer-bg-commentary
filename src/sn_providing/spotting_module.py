@@ -21,7 +21,7 @@ class MainV2Argument(Tap):
     split: str = "test"
 
     # タイミング生成
-    timing_algo: str = "constant"
+    timing_algo: str = "empirical"
     mean_silence_sec: float = (
         5.58  # 1秒以上の空白があるコメント集合における 平均的な発話間隔
     )
@@ -29,15 +29,19 @@ class MainV2Argument(Tap):
     gamma_params: dict = {"shape": 0.3283, "loc": 0.0, "scale": 6.4844}
     expon_params: dict = {"loc": 0.0, "scale": 2.1289}
     ignore_under_1sec: bool = False
-    empirical_dist_csv: str = None
+    empirical_dist_csv: str = (
+        "/Users/heste/workspace/soccernet/sn-caption/Benchmarks/TemporallyAwarePooling/data/silence_distribution.csv"
+    )
 
     # ラベル生成
-    default_rate: float = 0.18
-    label_algo: str = "constant"
+    default_rate: float = 0.185
+    label_algo: str = "action_spotting"
     action_spotting_label_csv: str = (
         "/Users/heste/workspace/soccernet/sn-script/database/misc/soccernet_spotting_labels.csv"
     )
-    action_rate_csv: str = None
+    action_rate_csv: str = (
+        "/Users/heste/workspace/soccernet/sn-caption/Benchmarks/TemporallyAwarePooling/data/Additional_Info_Ratios__Before_and_After.csv"
+    )
     action_window_size: float = 15
     addinfo_force: bool = False
     only_offplay: bool = False
@@ -243,9 +247,9 @@ class SpottingModule:
         assert 0 <= addinfo_rate <= 1
 
         # 付加的情報の割合が高い(アクション,前後)場合、付加的情報とする
-        if args.addinfo_force and addinfo_rate > 0.18:
+        if self.addinfo_force and addinfo_rate > 0.18:
             addinfo_rate = 1.0
-        elif args.addinfo_force and addinfo_rate <= 0.18:
+        elif self.addinfo_force and addinfo_rate <= 0.18:
             pass
 
         # ラベルを生成

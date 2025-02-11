@@ -11,6 +11,7 @@ from langchain_openai import ChatOpenAI as LangChainOpenAI
 from tap import Tap
 
 from sn_providing.entity import CommentDataList, SpottingDataList, VideoData, CommentData, SpottingData
+from sn_providing.util import format_docs, log_documents, log_prompt
 from sn_providing.spotting_module import SpottingModule, MainV2Argument
 from sn_providing.construct_query import build_query
 from sn_providing.addinfo_retrieval import (
@@ -26,18 +27,34 @@ from sn_providing.addinfo_retrieval import (
 load_dotenv()
 
 
-# ロガーの設定
+# ===========
+# Logger
+# ===========
 time_string = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+# フォーマッタ
+formatter = logging.Formatter(
+    fmt="%(asctime)s [%(levelname)s] %(name)s : %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
 ## ログファイル出力
 file_handler = logging.FileHandler(f"logs/main--{time_string}.log")
+file_handler.setFormatter(formatter)
+
 ## 標準出力
 stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+
 ## ログ+標準出力
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
 
+# ===========
+# Main
+# ===========
 class MainArgument(Tap):
     """
     メインスクリプトの引数
@@ -46,7 +63,9 @@ class MainArgument(Tap):
     half: int
     start: float
     end: float
-    video_path: str
+    comment_csv: str = "data/commentary/scbi-v2.csv"
+    video_csv: str = "data/demo/players_in_frames_sn_gamestate.csv"
+    label_csv: str = "data/from_video/soccernet_spotting_labels.csv"
 
 
 def get_utterance_length(utterance: str):
@@ -59,6 +78,10 @@ def get_utterance_length(utterance: str):
 
 
 class DemoRunner:
+    """
+    デモ動画のための実況を生成する
+    """
+
     def __init__(
         self,
         game: str, 
@@ -67,16 +90,13 @@ class DemoRunner:
         video_csv: str,
         label_csv: str
     ):
-        """
-        デモ動画のための実況を生成する
-        """
         # スポッティングモジュール関連
-        spotting_params = MainV2Argument().as_dict()
+        spotting_params = MainV2Argument().parse_known_args()[0]
         spotting_model = SpottingModule(spotting_params)
-        
+
         # 選手同定+ragモジュール関連
         game_metadata = SpottingDataList.extract_data_from_game(game)
-        gold_comment_data_list: CommentDataList = CommentDataList.read_csv(comment_csv, game) # 映像の説明のモック用・comment_data_listのコメント履歴が使い物にならない時に，検索クエリを補強する用
+        gold_comment_data_list: CommentDataList = CommentDataList.read_csv(comment_csv, game) 
         video_data = VideoData(video_csv, label_csv=label_csv)
         llm = LangChainOpenAI(**MODEL_CONFIG)
         retriever = get_retriever(
@@ -85,14 +105,18 @@ class DemoRunner:
             embedding_config=EMBEDDING_CONFIG,
             search_config=SEARCH_CONFIG,
         )
-        _, _, rag_chain = get_rag_chain(
-            retriever=retriever, langchain=llm
+        rag_chain, _, _ = get_rag_chain(
+            retriever=retriever,
+            llm=llm,
+            log_documents=log_documents,
+            log_prompt=log_prompt,
+            format_docs=format_docs,
         )
-        
-        # メンバー変数
+
+        # メンバ変数
         self.game = game
         self.half = half
-        self.gold_comment_data_list = gold_comment_data_list
+        self.gold_comment_data_list = gold_comment_data_list # 映像の説明のモック用・comment_data_listのコメント履歴が使い物にならない時に，検索クエリを補強する用
         self.video_data = video_data
         self.spotting_model = spotting_model
         self.game_metadata = game_metadata
@@ -122,6 +146,7 @@ class DemoRunner:
         self,
         start: float, 
         end: float,
+        save_jsonl: str
     ):
         # 終了条件
         finish_time = end
@@ -132,7 +157,8 @@ class DemoRunner:
         
         # 文脈情報として使うため，gold_comment_data_list に含まれる，start までの comment を追加
         for comment in self.gold_comment_data_list.comments:
-            if comment.half ==self. half and comment.end_time < start:
+            if comment.half == self.half and \
+                comment.end_time < start:
                 comment_data_list.comments.append(comment)
         
         while 1:
@@ -154,8 +180,8 @@ class DemoRunner:
                 # コメント履歴に追加
                 comment_data_list.comments.append(
                     CommentData(
-                        half=self.half, start_time=next_start, end_time=next_end,
-                        text=comment, category=next_label
+                        half=int(self.half), start_time=next_start, end_time=next_end,
+                        text=comment, category=int(next_label)
                     )
                 )
 
@@ -173,22 +199,24 @@ class DemoRunner:
                     position=int(next_ts)*1000,
                     confidence=1.
                 )
-                response = self.rag_chain.invoke(spot)
+                comment = self.rag_chain.invoke(spot)
 
                 # 発話開始時間, 発話終了時間を設定
                 next_start = next_ts
-                next_end = next_ts + get_utterance_length(response)
+                next_end = next_ts + get_utterance_length(comment)
 
                 # コメント履歴に追加
                 comment_data_list.comments.append(
                     CommentData(
-                        half=self.half, start_time=next_start, end_time=next_end,
-                        text=response, category=next_label
+                        half=int(self.half), start_time=next_start, end_time=next_end,
+                        text=comment, category=int(next_label)
                     )
                 )
             else:
                 raise RuntimeError(f"無効な発話ラベルです: {next_label}")
-
+            # log
+            logger.info(f"start: {next_start:.02f}, end: {next_end:.02f}, label: {next_label}, comment: {comment}")
+            
             # 次のループのために更新
             prev_end = next_end
 
@@ -196,23 +224,27 @@ class DemoRunner:
             if finish_time <= prev_end:
                 break
         
+        # while ループを抜けたら，コメントを保存
         # 文脈情報として使うためにいれたgold_comment_data_listのコメントを削除
         for comment in self.gold_comment_data_list.comments:
-            if comment.half == self.half and comment.start_time < start:
+            if comment in comment_data_list.comments:
                 comment_data_list.comments.remove(comment)
         
         # 保存
-        comment_data_list.to_jsonline("outputs/demo-step2/commentary.jsonl")
+        comment_data_list.to_jsonline(save_jsonl)
 
 
 if __name__ == "__main__":
     args = MainArgument().parse_args()
-    
+
     demo_runner = DemoRunner(
-        args.game, args.half,
-        "outputs/demo-step1/commentary.csv",
-        "outputs/demo-step1/video.csv",
-        "outputs/demo-step1/label.csv"
+        args.game, 
+        args.half,
+        args.comment_csv,
+        args.video_csv,
+        args.label_csv
     )
-    
-    demo_runner.run(args.start, args.end)
+
+    demo_runner.run(
+        args.start, args.end, "outputs/demo-step2/commentary.jsonl"
+    )

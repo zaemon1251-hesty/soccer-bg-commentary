@@ -21,6 +21,7 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 
 
 from sn_providing.entity import SpottingDataList, ReferenceDoc, RetrieverType
+from sn_providing.util import format_docs, log_documents, log_prompt
 
 # (project-root)/.env を読み込む
 load_dotenv()
@@ -109,18 +110,6 @@ def run(
     LangChainを使って付加的情報を生成する
     """
 
-    def format_docs(docs):
-        return "\n\n".join(doc.page_content for doc in docs)
-
-    def log_documents(docs):
-        for doc in docs:
-            logging.info(f"Document: {doc.page_content}")
-        return docs
-
-    def log_prompt(prompt: str) -> str:
-        logging.info(f"Overall Prompt: {prompt}")
-        return prompt
-
     # レトリバの取得
     retriever = get_retriever(
         retriever_type,
@@ -184,9 +173,9 @@ def get_rag_chain(retriever, llm, **kwargs):
     reference_documents_yaml = kwargs.get("reference_documents_yaml", None)
 
     # ログ関数
-    log_documents = kwargs.get("log_documents", lambda: None)
-    log_prompt = kwargs.get("log_prompt", lambda: None)
-    format_docs = kwargs.get("format_docs", lambda: None)
+    log_documents = kwargs.get("log_documents", lambda x: x)
+    log_prompt = kwargs.get("log_prompt", lambda x: x)
+    format_docs = kwargs.get("format_docs", lambda x: x)
 
     reference_doc_data = None
     get_reference_documents_partial = None
