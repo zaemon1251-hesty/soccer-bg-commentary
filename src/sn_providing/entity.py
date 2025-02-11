@@ -1,5 +1,6 @@
 from pathlib import Path
 import re
+import math
 from typing import Dict, Optional, List
 import json
 import pandas as pd
@@ -9,7 +10,7 @@ import yaml
 from typing import Literal
 
 
-@dataclass
+@dataclass(eq=True)
 class SpottingData:
     half: int
     game_time: int
@@ -108,13 +109,12 @@ class SpottingDataList:
 @dataclass(eq=True)
 class CommentData:
     half: int
-    start_time: int
+    start_time: int | float
     text: str
     category: str
-    end_time: Optional[int] = None
+    end_time: Optional[int | float] = None
 
-
-@dataclass(eq=True)
+@dataclass
 class CommentDataList:
     comments: List[CommentData]
     
@@ -192,6 +192,36 @@ class CommentDataList:
             for s in self.comments:
                 f.write(json.dumps(s.__dict__, ensure_ascii=False) + "\n")
     
+    def to_webvtt(self, output_file: str, base_time: float = 0.0):
+        """
+        start_time, end_time は float で保持
+        base_time を引くことで、動画の任意のクリップに合わせた字幕に対応可能
+        例:
+        - base_time=120.0 なら、WebVTTの「00:00:00.000」は実際には，もとの動画の120秒地点。
+        """
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+
+        def format_vtt_time(sec: float) -> str:
+            """
+            秒(float)を WebVTT 形式 (HH:MM:SS.mmm) に変換
+            """
+            hours = int(sec // 3600)
+            minutes = int((sec % 3600) // 60)
+            seconds = sec % 60
+            milliseconds = int((seconds - math.floor(seconds)) * 1000)
+            return f"{hours:02d}:{minutes:02d}:{int(seconds):02d}.{milliseconds:03d}"
+        
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("WEBVTT\n\n")
+            for _, s in enumerate(self.comments, start=1):
+                start_sec = float(s.start_time) - base_time
+                end_sec = float(s.end_time) - base_time
+
+                start_vtt = format_vtt_time(start_sec)
+                end_vtt = format_vtt_time(end_sec)
+
+                f.write(f"{start_vtt} --> {end_vtt}\n")
+                f.write(f"{s.text}\n\n")
 
 
 class VideoData:

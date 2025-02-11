@@ -116,14 +116,17 @@ class DemoRunner:
         # メンバ変数
         self.game = game
         self.half = half
-        self.gold_comment_data_list = gold_comment_data_list # 映像の説明のモック用・comment_data_listのコメント履歴が使い物にならない時に，検索クエリを補強する用
+        self.gold_comment_data_list = gold_comment_data_list # 映像の説明のモック用・検索クエリを補強する用
         self.video_data = video_data
         self.spotting_model = spotting_model
         self.game_metadata = game_metadata
         self.rag_chain = rag_chain
-        
-        
-    def build_query_for_demo(self, comment_data_list, time):
+
+    def build_query_for_demo(
+        self,
+        comment_data_list: CommentDataList, 
+        time: float
+    ):
         """ game, half, game_metadata, video_data は関数内で定義された変数を用いる  """
         filtered_comment_list = CommentDataList.filter_by_half_and_time(
             comment_data_list, self.half, time
@@ -146,8 +149,11 @@ class DemoRunner:
         self,
         start: float, 
         end: float,
-        save_jsonl: str
+        save_jsonl: str,
+        save_vtt: str
     ):
+        logger.info(f"Args\nstart: {start:.02f}, end: {end:.02f}, save_jsonl: {save_jsonl}, save_vtt: {save_vtt}")
+
         # 終了条件
         finish_time = end
 
@@ -166,25 +172,11 @@ class DemoRunner:
             next_ts, next_label = self.spotting_model(
                 previous_t=prev_end, game=self.game, half=self.half
             )
-            
             if next_label == 0: # 映像の説明
-                # まずモックとして，近傍の映像の説明を取得する
-                comment = self.gold_comment_data_list.get_comment_nearest_time(next_ts)
-                
-                # TODO 上記の実装をコメントアウトし，tanaka-san の Integrate System を使って映像の説明を生成する
-                
-                # 発話開始時間, 発話終了時間を設定
-                next_start = next_ts
-                next_end = next_ts + get_utterance_length(comment)
-                
-                # コメント履歴に追加
-                comment_data_list.comments.append(
-                    CommentData(
-                        half=int(self.half), start_time=next_start, end_time=next_end,
-                        text=comment, category=int(next_label)
-                    )
+                # まずモックとして，近傍の映像の説明を取得する．TODO tanaka-san の Integrate System を使って映像の説明を生成する
+                comment = self.gold_comment_data_list.get_comment_nearest_time(
+                    next_ts
                 )
-
             elif next_label == 1: # 付加的情報
                 # 付加的情報を生成
                 query = self.build_query_for_demo(
@@ -200,38 +192,37 @@ class DemoRunner:
                     confidence=1.
                 )
                 comment = self.rag_chain.invoke(spot)
-
-                # 発話開始時間, 発話終了時間を設定
-                next_start = next_ts
-                next_end = next_ts + get_utterance_length(comment)
-
-                # コメント履歴に追加
-                comment_data_list.comments.append(
-                    CommentData(
-                        half=int(self.half), start_time=next_start, end_time=next_end,
-                        text=comment, category=int(next_label)
-                    )
-                )
             else:
                 raise RuntimeError(f"無効な発話ラベルです: {next_label}")
-            # log
+
+            # 発話開始時間, 発話終了時間を設定
+            next_start = next_ts
+            next_end = next_ts + get_utterance_length(comment)
+
+            # コメント履歴に追加
+            comment_data_list.comments.append(
+                CommentData(
+                    half=int(self.half), start_time=next_start, end_time=next_end,
+                    text=comment, category=int(next_label)
+                )
+            )
             logger.info(f"start: {next_start:.02f}, end: {next_end:.02f}, label: {next_label}, comment: {comment}")
-            
+
+            # 終了条件
+            if finish_time <= next_end:
+                break
             # 次のループのために更新
             prev_end = next_end
 
-            # 終了条件
-            if finish_time <= prev_end:
-                break
-        
         # while ループを抜けたら，コメントを保存
         # 文脈情報として使うためにいれたgold_comment_data_listのコメントを削除
         for comment in self.gold_comment_data_list.comments:
             if comment in comment_data_list.comments:
                 comment_data_list.comments.remove(comment)
-        
+
         # 保存
         comment_data_list.to_jsonline(save_jsonl)
+        comment_data_list.to_webvtt(save_vtt, base_time=start)
 
 
 if __name__ == "__main__":
@@ -246,5 +237,7 @@ if __name__ == "__main__":
     )
 
     demo_runner.run(
-        args.start, args.end, "outputs/demo-step2/commentary.jsonl"
+        args.start, args.end, 
+        save_jsonl="outputs/demo-step2/commentary.jsonl",
+        save_vtt="outputs/demo-step2/commentary.vtt",
     )
