@@ -169,11 +169,11 @@ class CommentDataList:
                 return comment.text
         return None
 
-    def get_comment_nearest_time(self, game_time: int, thres: float = 15.) -> str:
+    def get_comment_nearest_time(self, game_time: int, thres: float = 15.,category: int = 0) -> str:
         diff = float("inf")
         nearest_comment = None
         for comment in self.comments:
-            if abs(comment.start_time - game_time) < min(diff, thres):
+            if abs(comment.start_time - game_time) < min(diff, thres) and comment.category == category:
                 diff = abs(comment.start_time - game_time)
                 nearest_comment = comment.text
         return nearest_comment
@@ -192,13 +192,17 @@ class CommentDataList:
             for s in self.comments:
                 f.write(json.dumps(s.__dict__, ensure_ascii=False) + "\n")
     
-    def to_webvtt(self, output_file: str, base_time: float = 0.0):
+    def to_srt(self, output_file: str, base_time: float = 0.0, video_end_time: float = 30.0):
         """
         start_time, end_time は float で保持
         base_time を引くことで、動画の任意のクリップに合わせた字幕に対応可能
         例:
-        - base_time=120.0 なら、WebVTTの「00:00:00.000」は実際には，もとの動画の120秒地点。
+        - base_time=120.0 なら、srtの「00:00:00.000」は実際には，もとの動画の120秒地点。
         """
+        # TODO ひとつあたりのコメントの長さが長い場合に対応
+        # modified_comments = []
+        # for comment in self.comments:...
+        
         Path(output_file).parent.mkdir(parents=True, exist_ok=True)
 
         def format_vtt_time(sec: float) -> str:
@@ -209,17 +213,17 @@ class CommentDataList:
             minutes = int((sec % 3600) // 60)
             seconds = sec % 60
             milliseconds = int((seconds - math.floor(seconds)) * 1000)
-            return f"{hours:02d}:{minutes:02d}:{int(seconds):02d}.{milliseconds:03d}"
+            return f"{hours:02d}:{minutes:02d}:{int(seconds):02d},{milliseconds:03d}"
         
         with open(output_file, "w", encoding="utf-8") as f:
-            f.write("WEBVTT\n\n")
-            for _, s in enumerate(self.comments, start=1):
+            for i, s in enumerate(self.comments, start=1):
                 start_sec = float(s.start_time) - base_time
                 end_sec = float(s.end_time) - base_time
+                end_sec = min(end_sec, video_end_time)
 
                 start_vtt = format_vtt_time(start_sec)
                 end_vtt = format_vtt_time(end_sec)
-
+                f.write(f"{i}\n")
                 f.write(f"{start_vtt} --> {end_vtt}\n")
                 f.write(f"{s.text}\n\n")
 

@@ -5,6 +5,7 @@ import sys
 import os
 import logging
 from datetime import datetime
+from typing import Literal
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI as LangChainOpenAI
@@ -59,6 +60,7 @@ class MainArgument(Tap):
     """
     メインスクリプトの引数
     """
+    mode: Literal["run", "reference"] = "run"
     game: str
     half: int
     start: float
@@ -66,6 +68,8 @@ class MainArgument(Tap):
     comment_csv: str = "data/commentary/scbi-v2.csv"
     video_csv: str = "data/demo/players_in_frames_sn_gamestate.csv"
     label_csv: str = "data/from_video/soccernet_spotting_labels.csv"
+    save_jsonl: str = "outputs/demo-step2/commentary.jsonl"
+    save_srt: str = "outputs/demo-step2/commentary.vtt"
 
 
 def get_utterance_length(utterance: str):
@@ -74,7 +78,7 @@ def get_utterance_length(utterance: str):
     words = utterance.split()
     word_count = len(words)
     time = word_count * (60.0 / 200.0)
-    return  time
+    return time
 
 
 class DemoRunner:
@@ -122,7 +126,7 @@ class DemoRunner:
         self.game_metadata = game_metadata
         self.rag_chain = rag_chain
 
-    def build_query_for_demo(
+    def build_extended_query(
         self,
         comment_data_list: CommentDataList, 
         time: float
@@ -150,9 +154,9 @@ class DemoRunner:
         start: float, 
         end: float,
         save_jsonl: str,
-        save_vtt: str
+        save_srt: str
     ):
-        logger.info(f"Args\nstart: {start:.02f}, end: {end:.02f}, save_jsonl: {save_jsonl}, save_vtt: {save_vtt}")
+        logger.info(f"Args\nstart: {start:.02f}, end: {end:.02f}, save_jsonl: {save_jsonl}, save_srt: {save_srt}")
 
         # 終了条件
         finish_time = end
@@ -173,13 +177,13 @@ class DemoRunner:
                 previous_t=prev_end, game=self.game, half=self.half
             )
             if next_label == 0: # 映像の説明
-                # まずモックとして，近傍の映像の説明を取得する．TODO tanaka-san の Integrate System を使って映像の説明を生成する
+                # まずモックとして，近傍のコメント(ラベルは問わない)を取得する．TODO tanaka-san の Integrate System を使って映像の説明を生成する
                 comment = self.gold_comment_data_list.get_comment_nearest_time(
                     next_ts
                 )
             elif next_label == 1: # 付加的情報
                 # 付加的情報を生成
-                query = self.build_query_for_demo(
+                query = self.build_extended_query(
                     comment_data_list, next_ts
                 )
                 spot = SpottingData(
@@ -188,8 +192,8 @@ class DemoRunner:
                     category=next_label, 
                     game_time=next_ts, 
                     query=query,
-                    position=int(next_ts)*1000,
-                    confidence=1.
+                    position=int(next_ts)*1000, # placeholder (この値に意味はない)
+                    confidence=1. # placeholder (この値に意味はない)
                 )
                 comment = self.rag_chain.invoke(spot)
             else:
@@ -206,7 +210,7 @@ class DemoRunner:
                     text=comment, category=int(next_label)
                 )
             )
-            logger.info(f"start: {next_start:.02f}, end: {next_end:.02f}, label: {next_label}, comment: {comment}")
+            logger.info(f"s: {next_start:.02f}, e: {next_end:.02f}, label: {next_label}, comment: {comment}")
 
             # 終了条件
             if finish_time <= next_end:
@@ -222,7 +226,18 @@ class DemoRunner:
 
         # 保存
         comment_data_list.to_jsonline(save_jsonl)
-        comment_data_list.to_webvtt(save_vtt, base_time=start)
+        comment_data_list.to_srt(save_srt, base_time=start)
+
+    def reference(self, start: float, end: float, save_jsonl: str, save_srt: str):
+        """ 現実の実況（参照例）を出力する """
+        comment_data_list = CommentDataList([])
+        for comment in self.gold_comment_data_list.comments:
+            if comment.half == self.half and \
+                comment.start_time >= start and \
+                comment.start_time < end:
+                comment_data_list.comments.append(comment)
+        comment_data_list.to_jsonline(save_jsonl)
+        comment_data_list.to_srt(save_srt, base_time=start)
 
 
 if __name__ == "__main__":
@@ -236,8 +251,19 @@ if __name__ == "__main__":
         args.label_csv
     )
 
-    demo_runner.run(
-        args.start, args.end, 
-        save_jsonl="outputs/demo-step2/commentary.jsonl",
-        save_vtt="outputs/demo-step2/commentary.vtt",
-    )
+    if args.mode == "run":
+        demo_runner.run(
+            args.start, 
+            args.end, 
+            args.save_jsonl, 
+            args.save_srt
+        )
+    elif args.mode == "reference":
+        demo_runner.reference(
+            args.start, 
+            args.end, 
+            args.save_jsonl, 
+            args.save_srt
+        )
+    else:
+        raise ValueError(f"無効なモードです: {args.mode}")
