@@ -169,7 +169,7 @@ class CommentDataList:
                 return comment.text
         return None
 
-    def get_comment_nearest_time(self, game_time: int, thres: float = 15.,category: int = 0) -> str:
+    def get_comment_nearest_time(self, game_time: int, thres: float = 15.,category: str = "0") -> str:
         diff = float("inf")
         nearest_comment = None
         for comment in self.comments:

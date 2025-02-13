@@ -13,3 +13,6 @@ data/
 outputs/step1
 
 *.mp4
+
+*.jsonl
+*.srt

@@ -5,11 +5,12 @@ import sys
 import os
 import logging
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Optional
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI as LangChainOpenAI
 from tap import Tap
+import pandas as pd
 
 from sn_providing.entity import CommentDataList, SpottingDataList, VideoData, CommentData, SpottingData
 from sn_providing.util import format_docs, log_documents, log_prompt
@@ -17,12 +18,15 @@ from sn_providing.spotting_module import SpottingModule, MainV2Argument
 from sn_providing.construct_query import build_query
 from sn_providing.addinfo_retrieval import (
     get_rag_chain, 
-    get_retriever, 
-    MODEL_CONFIG, 
-    EMBEDDING_CONFIG, 
-    SEARCH_CONFIG, 
+    get_retriever
+)
+from sn_providing.constants import (
+    MODEL_CONFIG,
+    EMBEDDING_CONFIG,
+    SEARCH_CONFIG,
     PERSIST_LANGCHAIN_DIR
 )
+
 
 # .env の環境変数を読み込む
 load_dotenv()
@@ -61,15 +65,21 @@ class MainArgument(Tap):
     メインスクリプトの引数
     """
     mode: Literal["run", "reference"] = "run"
-    game: str
-    half: int
-    start: float
-    end: float
+    input_method: Literal["manual", "csv"] = "manual"
     comment_csv: str = "data/commentary/scbi-v2.csv"
     video_csv: str = "data/demo/players_in_frames_sn_gamestate.csv"
     label_csv: str = "data/from_video/soccernet_spotting_labels.csv"
+    # input_method == "manual"
+    game: str = None
+    half: int = None
+    start: float = None
+    end: float = None
     save_jsonl: str = "outputs/demo-step2/commentary.jsonl"
-    save_srt: str = "outputs/demo-step2/commentary.vtt"
+    save_srt: str = "outputs/demo-step2/commentary.srt"
+    # input_method == "csv"
+    input_csv: Optional[str] = None
+    output_base_dir: Optional[str] = "outputs/demo-step2"
+
 
 
 def get_utterance_length(utterance: str):
@@ -200,6 +210,8 @@ class DemoRunner:
                 raise RuntimeError(f"無効な発話ラベルです: {next_label}")
 
             # 発話開始時間, 発話終了時間を設定
+            assert comment is not None, "comment が None です"
+            
             next_start = next_ts
             next_end = next_ts + get_utterance_length(comment)
 
@@ -240,30 +252,80 @@ class DemoRunner:
         comment_data_list.to_srt(save_srt, base_time=start)
 
 
-if __name__ == "__main__":
-    args = MainArgument().parse_args()
-
+def run_one_example(
+    mode: Literal["run", "reference"], 
+    game: str, 
+    half: int, 
+    start: float, 
+    end: float, 
+    comment_csv: str, 
+    video_csv: str, 
+    label_csv: str, 
+    save_jsonl: str, 
+    save_srt: str
+):
     demo_runner = DemoRunner(
-        args.game, 
-        args.half,
-        args.comment_csv,
-        args.video_csv,
-        args.label_csv
+        game, 
+        half,
+        comment_csv,
+        video_csv,
+        label_csv
     )
 
-    if args.mode == "run":
+    if mode == "run":
         demo_runner.run(
-            args.start, 
-            args.end, 
-            args.save_jsonl, 
-            args.save_srt
+            start, 
+            end, 
+            save_jsonl, 
+            save_srt
         )
-    elif args.mode == "reference":
+    elif mode == "reference":
         demo_runner.reference(
-            args.start, 
-            args.end, 
-            args.save_jsonl, 
-            args.save_srt
+            start, 
+            end, 
+            save_jsonl, 
+            save_srt
         )
     else:
-        raise ValueError(f"無効なモードです: {args.mode}")
+        raise ValueError(f"無効なモードです: {mode}")
+
+
+if __name__ == "__main__":
+    args = MainArgument().parse_args()
+    if args.input_method == "manual":
+        assert (args.game is not None) and (args.half is not None) and (args.start is not None) and (args.end is not None)
+
+        run_one_example(
+            args.mode, 
+            args.game, 
+            args.half, 
+            args.start, 
+            args.end, 
+            args.comment_csv, 
+            args.video_csv, 
+            args.label_csv, 
+            args.save_jsonl, 
+            args.save_srt
+        )
+    elif args.input_method == "csv":
+        assert (args.input_csv is not None) and (args.output_base_dir is not None)
+        
+        input_df = pd.read_csv(args.input_csv)
+        assert {"id", "game", "half", "start", "end"}.issubset(set(input_df.columns))
+        basename = "commentary" if args.mode == "run" else "ref"
+        for _, row in input_df.iterrows():
+            save_jsonl = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{basename}.jsonl")
+            save_srt = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{basename}.srt")
+            logger.info(f"Game: {row['game']}, Half: {row['half']}, Start: {row['start']}, End: {row['end']}, Save JSONL: {save_jsonl}, Save SRT: {save_srt}")
+            run_one_example(
+                args.mode, 
+                row["game"], 
+                row["half"], 
+                row["start"], 
+                row["end"], 
+                args.comment_csv, 
+                args.video_csv, 
+                args.label_csv, 
+                save_jsonl,
+                save_srt
+            )
