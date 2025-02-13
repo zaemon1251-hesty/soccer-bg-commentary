@@ -5,13 +5,13 @@
 まず，ユーザが決定するものは以下の通り
 
 - game
-- duration (s -> e, sとeは 整数[秒])
+- duration (s -> e, s と e は 整数[秒])
 
 処理の流れは以下の通り
 
-0. ユーザがgameとdurationを コマンドラインで入力する
-1. スポッティングモジュールがgameに対応するスポッティングデータを生成する
-2. 推定されたタイミングごとに 前後5秒含めて選手同定モジュールを実行する
+0. ユーザが game と duration を コマンドラインで入力する
+1. スポッティングモジュールが game に対応するスポッティングデータを生成する
+2. 推定されたタイミングごとに 前後 5 秒含めて選手同定モジュールを実行する
 3. 選手同定モジュールの出力をもとに，クエリを構築
 4. クエリをもとに，付加的情報を含む実況コメントを生成する
 
@@ -27,7 +27,7 @@
 
 ```bash
 # 1. スポッティングの実行:
-python Benchmark/TemporallyAwarePooling/src/main_v2.py (args)
+python src/sn_providing/spotting_module.py.py (args)
 ```
 
 入力:
@@ -54,11 +54,11 @@ python Benchmark/TemporallyAwarePooling/src/main_v2.py (args)
 実行方法
 
 ```bash
-# 1. 対象の箇所の切り取り: 
+# 1. 対象の箇所の切り取り:
 cd (sn-script); python src/sn_script/video2images.py (args)
-# 2. 選手同定の実行: 
+# 2. 選手同定の実行:
 cd (tracklab); python -m tracklab.main -cn soccernet (args)
-# 3. 選手名への対応付け: 
+# 3. 選手名への対応付け:
 cd (sn-script); python src/sn_script/player_identification/result2player.py (args)
 ```
 
@@ -74,7 +74,7 @@ cd (sn-script); python src/sn_script/player_identification/result2player.py (arg
 - team: str
 - name: str
 
-## RAGモジュール
+## RAG モジュール
 
 リポジトリ
 
@@ -83,9 +83,9 @@ cd (sn-script); python src/sn_script/player_identification/result2player.py (arg
 実行方法
 
 ```bash
-# 1. クエリ構築: 
+# 1. クエリ構築:
 python src/sn_providing/construct_query.py
-# 2. コメント生成: 
+# 2. コメント生成:
 python src/sn_providing/addinfo_retrieval.py
 ```
 
