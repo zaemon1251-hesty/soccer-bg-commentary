@@ -1,6 +1,6 @@
 [project]
 name = "sn-providing"
-version = "0.1.1"
+version = "0.1.2"
 description = "付加的情報の提供システムスクリプト"
 readme = "README.md"
 requires-python = ">=3.10,<3.11"
