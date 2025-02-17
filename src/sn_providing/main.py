@@ -11,10 +11,11 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI as LangChainOpenAI
 from tap import Tap
 import pandas as pd
+import numpy as np
 
 from sn_providing.entity import CommentDataList, SpottingDataList, VideoData, CommentData, SpottingData
 from sn_providing.util import format_docs, log_documents, log_prompt
-from sn_providing.spotting_module import SpottingModule, MainV2Argument
+from sn_providing.spotting_module import SpottingModule, SpottingArgment
 from sn_providing.construct_query import build_query
 from sn_providing.addinfo_retrieval import (
     get_rag_chain, 
@@ -24,7 +25,9 @@ from sn_providing.constants import (
     MODEL_CONFIG,
     EMBEDDING_CONFIG,
     SEARCH_CONFIG,
-    PERSIST_LANGCHAIN_DIR
+    PERSIST_LANGCHAIN_DIR,
+    INSTRUCTION,
+    INSTRUCTION_JA
 )
 
 
@@ -65,6 +68,7 @@ class MainArgument(Tap):
     メインスクリプトの引数
     """
     mode: Literal["run", "reference"] = "run"
+    lang: Literal["ja", "en"] = "en"
     input_method: Literal["manual", "csv"] = "manual"
     comment_csv: str = "data/commentary/scbi-v2.csv"
     video_csv: str = "data/demo/players_in_frames_sn_gamestate.csv"
@@ -79,6 +83,8 @@ class MainArgument(Tap):
     # input_method == "csv"
     input_csv: Optional[str] = None
     output_base_dir: Optional[str] = "outputs/demo-step2"
+    
+    seed: int = 100
 
 
 
@@ -89,6 +95,29 @@ def get_utterance_length(utterance: str):
     word_count = len(words)
     time = word_count * (60.0 / 200.0)
     return time
+
+
+def get_utterance_length_ja(utterance: str, base_time: float = 0.12, pause_time: float = 0.2) -> float:
+    """
+    日本語テキストのおおよその発話時間（秒）を計算する
+
+    各文字の発話に base_time 秒、句読点（「、」「。」）の後には追加で pause_time 秒のポーズを想定
+
+    Parameters:
+        utterance (str): 発話テキスト
+        base_time (float, optional): 1文字あたりの発話時間（秒）。デフォルトは 0.12 秒
+        pause_time (float, optional): 句読点後の追加ポーズ時間（秒）。デフォルトは 0.2 秒
+
+    Returns:
+        float: 推定発話時間（秒）
+    """
+        # punctuation = "、。"
+    # 句読点の数をカウント
+    # punctuation_count = sum(1 for c in utterance if c in punctuation)
+
+    # 各文字に対する時間 + 句読点に対する追加ポーズ
+    total_time = len(utterance) * base_time #+ punctuation_count * pause_time
+    return total_time
 
 
 class DemoRunner:
@@ -102,13 +131,17 @@ class DemoRunner:
         half: int, 
         comment_csv: str,
         video_csv: str,
-        label_csv: str
+        label_csv: str,
+        lang: str = "en",
+        seed: int = 100
     ):
         # スポッティングモジュール関連
-        spotting_params = MainV2Argument().parse_known_args()[0]
-        spotting_model = SpottingModule(spotting_params)
+        rng = np.random.RandomState(seed)
+        spotting_params = SpottingArgment().parse_known_args()[0]
+        spotting_model = SpottingModule(spotting_params, rng=rng)
 
         # 選手同定+ragモジュール関連
+        instruction = INSTRUCTION_JA if lang == "ja" else INSTRUCTION
         game_metadata = SpottingDataList.extract_data_from_game(game)
         gold_comment_data_list: CommentDataList = CommentDataList.read_csv(comment_csv, game) 
         video_data = VideoData(video_csv, label_csv=label_csv)
@@ -125,9 +158,11 @@ class DemoRunner:
             log_documents=log_documents,
             log_prompt=log_prompt,
             format_docs=format_docs,
+            instruction=instruction,
         )
 
         # メンバ変数
+        self.seed = seed
         self.game = game
         self.half = half
         self.gold_comment_data_list = gold_comment_data_list # 映像の説明のモック用・検索クエリを補強する用
@@ -135,6 +170,7 @@ class DemoRunner:
         self.spotting_model = spotting_model
         self.game_metadata = game_metadata
         self.rag_chain = rag_chain
+        self.func_utterance_length = get_utterance_length_ja if lang == "ja" else get_utterance_length
 
     def build_extended_query(
         self,
@@ -191,6 +227,8 @@ class DemoRunner:
                 comment = self.gold_comment_data_list.get_comment_nearest_time(
                     next_ts
                 )
+                next_start = next_ts
+                next_end = next_ts + get_utterance_length(comment)
             elif next_label == 1: # 付加的情報
                 # 付加的情報を生成
                 query = self.build_extended_query(
@@ -206,14 +244,13 @@ class DemoRunner:
                     confidence=1. # placeholder (この値に意味はない)
                 )
                 comment = self.rag_chain.invoke(spot)
+                next_start = next_ts
+                next_end = next_ts + self.func_utterance_length(comment)
             else:
                 raise RuntimeError(f"無効な発話ラベルです: {next_label}")
 
             # 発話開始時間, 発話終了時間を設定
             assert comment is not None, "comment が None です"
-            
-            next_start = next_ts
-            next_end = next_ts + get_utterance_length(comment)
 
             # コメント履歴に追加
             comment_data_list.comments.append(
@@ -262,70 +299,68 @@ def run_one_example(
     video_csv: str, 
     label_csv: str, 
     save_jsonl: str, 
-    save_srt: str
+    save_srt: str,
+    lang: str = "ja",
+    seed: int = 100
 ):
     demo_runner = DemoRunner(
         game, 
         half,
         comment_csv,
         video_csv,
-        label_csv
+        label_csv,
+        lang=lang,
+        seed=seed
     )
-
-    if mode == "run":
-        demo_runner.run(
-            start, 
-            end, 
-            save_jsonl, 
-            save_srt
-        )
-    elif mode == "reference":
-        demo_runner.reference(
-            start, 
-            end, 
-            save_jsonl, 
-            save_srt
-        )
-    else:
-        raise ValueError(f"無効なモードです: {mode}")
-
+    try:
+        if mode == "run":
+            demo_runner.run(
+                start, end, save_jsonl, save_srt
+            )
+        elif mode == "reference":
+            demo_runner.reference(
+                start, end, save_jsonl, save_srt
+            )
+        else:
+            raise ValueError(f"無効なモードです: {mode}")
+    except Exception as e:
+        logger.error(f"エラーが出ました: {save_jsonl=}\n内容: {e}")
+        return
 
 if __name__ == "__main__":
     args = MainArgument().parse_args()
+
     if args.input_method == "manual":
         assert (args.game is not None) and (args.half is not None) and (args.start is not None) and (args.end is not None)
 
         run_one_example(
-            args.mode, 
-            args.game, 
-            args.half, 
-            args.start, 
-            args.end, 
-            args.comment_csv, 
-            args.video_csv, 
-            args.label_csv, 
-            args.save_jsonl, 
-            args.save_srt
+            args.mode, args.game, 
+            args.half, args.start, args.end, 
+            args.comment_csv, args.video_csv, args.label_csv, 
+            args.save_jsonl, args.save_srt,
+            lang=args.lang, seed=args.seed
         )
     elif args.input_method == "csv":
         assert (args.input_csv is not None) and (args.output_base_dir is not None)
-        
+
         input_df = pd.read_csv(args.input_csv)
         assert {"id", "game", "half", "start", "end"}.issubset(set(input_df.columns))
         basename = "commentary" if args.mode == "run" else "ref"
         for _, row in input_df.iterrows():
-            save_jsonl = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{basename}.jsonl")
-            save_srt = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{basename}.srt")
+            save_jsonl = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{basename}-{args.lang}-2.jsonl")
+            save_srt = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{basename}-{args.lang}-2.srt")
+            if os.path.exists(save_jsonl) and os.path.exists(save_srt):
+                logger.info(f"Skip: {row['id']}")
+                continue
+            
             logger.info(f"Game: {row['game']}, Half: {row['half']}, Start: {row['start']}, End: {row['end']}, Save JSONL: {save_jsonl}, Save SRT: {save_srt}")
             run_one_example(
-                args.mode, 
-                row["game"], 
-                row["half"], 
-                row["start"], 
-                row["end"], 
-                args.comment_csv, 
-                args.video_csv, 
-                args.label_csv, 
-                save_jsonl,
-                save_srt
+                args.mode, row["game"], 
+                row["half"], row["start"], row["end"], 
+                args.comment_csv, args.video_csv, args.label_csv, 
+                save_jsonl,save_srt,
+                lang=args.lang, seed=args.seed
             )
+        logger.info("Finished")
+    else:
+        raise ValueError(f"無効な入力方法です: {args.input_method}")

@@ -30,6 +30,8 @@ from sn_providing.constants import (
     prompt_template_no_retrieval,
     DOCUMENT_DIR,
     PERSIST_LANGCHAIN_DIR,
+    INSTRUCTION_NO_RETRIEVAL,
+    INSTRUCTION_JA
 )
 from sn_providing.util import format_docs, log_documents, log_prompt
 
@@ -58,8 +60,6 @@ class Arguments(Tap):
     search_score_threshold: float = 0.7
 
 
-
-
 def run(
     spotting_data_list: SpottingDataList,
     output_file: str,
@@ -69,6 +69,7 @@ def run(
     model_config: dict = MODEL_CONFIG,
     embedding_config: dict = EMBEDDING_CONFIG,
     search_config: dict = SEARCH_CONFIG,
+    instruction: str = INSTRUCTION,
 ):
     """
     LangChainを使って付加的情報を生成する
@@ -93,6 +94,7 @@ def run(
         log_documents=log_documents,
         log_prompt=log_prompt,
         format_docs=format_docs,
+        instruction=instruction,
     )
 
     # 実行 (rag_chain は spotting_data を受け取って text を返す)
@@ -133,6 +135,8 @@ def get_rag_chain(retriever, llm, **kwargs):
         reference_doc_data: 正解文書のデータ
         get_reference_documents_partial: 正解文書を取得する関数
     """
+    instruction = kwargs.get("instruction", INSTRUCTION)
+    
     no_retrieval = kwargs.get("no_retrieval", False)
     reference_documents_yaml = kwargs.get("reference_documents_yaml", None)
 
@@ -148,7 +152,7 @@ def get_rag_chain(retriever, llm, **kwargs):
     if no_retrieval:
         rag_chain = (
             {
-                "instruction": lambda _: INSTRUCTION,
+                "instruction": lambda _: instruction,
                 "query": lambda spotting_data: spotting_data.query,
             }
             | PromptTemplate.from_template(prompt_template_no_retrieval)
@@ -165,7 +169,7 @@ def get_rag_chain(retriever, llm, **kwargs):
 
         rag_chain = (
             {
-                "instruction": lambda _: INSTRUCTION,
+                "instruction": lambda _: instruction,
                 "documents": lambda spotting_data: get_reference_documents_partial(
                     spotting_data.game, spotting_data.half, spotting_data.game_time
                 ),
@@ -185,7 +189,7 @@ def get_rag_chain(retriever, llm, **kwargs):
 
         rag_chain = (
             {
-                "instruction": lambda _: INSTRUCTION,
+                "instruction": lambda _: instruction,
                 "documents": lambda spotting_data: process_docs(spotting_data),
                 "query": lambda spotting_data: spotting_data.query,
             }
@@ -296,8 +300,9 @@ if __name__ == "__main__":
     logging.info(f"Embedding Config: {embedding_config}")
     logging.info(f"Search Config: {search_config}")
 
+    instruction = INSTRUCTION
     if args.no_retrieval:
-        INSTRUCTION = INSTRUCTION.replace("Using the documents below,", "")
+        instruction = INSTRUCTION_NO_RETRIEVAL
 
     run(
         spotting_data_list,
@@ -308,4 +313,5 @@ if __name__ == "__main__":
         model_config,
         embedding_config,
         search_config,
+        instruction=instruction,
     )

@@ -14,7 +14,7 @@ echo "----------------------------------------"
 echo "label_algo: action_spotting, (No separate former and latter"
 python src/sn_providing/spotting_module.py.py --split valid --path $path --ignore_under_1sec --label_algo action_spotting --action_window_size 20 \
     --seed 100 \
-    --action_rate_csv "/Users/heste/workspace/soccernet/sn-caption/Benchmarks/TemporallyAwarePooling/data/Extracted_Action_Rates.csv"
+    --action_rate_csv "data/spotting/Extracted_Action_Rates.csv"
 
 echo "----------------------------------------"
 echo "----------------------------------------"
@@ -23,7 +23,7 @@ echo "----------------------------------------"
 echo "label_algo: action_spotting, (Separate former and latter"
 python src/sn_providing/spotting_module.py.py --split valid --path $path --ignore_under_1sec --label_algo action_spotting --action_window_size 20 \
     --seed 100 \
-    --action_rate_csv "/Users/heste/workspace/soccernet/sn-caption/Benchmarks/TemporallyAwarePooling/data/Additional_Info_Ratios__Before_and_After.csv"
+    --action_rate_csv "data/spotting/Additional_Info_Ratios__Before_and_After.csv"
 
 echo "----------------------------------------"
 echo "----------------------------------------"
@@ -33,7 +33,7 @@ echo "label_algo: action_spotting, Addinfo force (No separate former and latter"
 python src/sn_providing/spotting_module.py.py --split valid --path $path --ignore_under_1sec --label_algo action_spotting --action_window_size 20 \
     --seed 100 \
     --addinfo_force \
-    --action_rate_csv "/Users/heste/workspace/soccernet/sn-caption/Benchmarks/TemporallyAwarePooling/data/Extracted_Action_Rates.csv"
+    --action_rate_csv "data/spotting/Extracted_Action_Rates.csv"
 
 echo "----------------------------------------"
 echo "----------------------------------------"
@@ -43,7 +43,7 @@ echo "label_algo: action_spotting, Addinfo force (Separate former and latter"
 python src/sn_providing/spotting_module.py.py --split valid --path $path --ignore_under_1sec --label_algo action_spotting --action_window_size 20 \
     --seed 100 \
     --addinfo_force \
-    --action_rate_csv "/Users/heste/workspace/soccernet/sn-caption/Benchmarks/TemporallyAwarePooling/data/Additional_Info_Ratios__Before_and_After.csv"
+    --action_rate_csv "data/spotting/Additional_Info_Ratios__Before_and_After.csv"
 
 
 

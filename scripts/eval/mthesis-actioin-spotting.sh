@@ -8,11 +8,11 @@ echo "System:"
 echo "empirical, action_spotting, Separate, Addinfo force"
 python src/sn_providing/spotting_module.py.py --split test --path $path --seed 100 \
     --timing_algo empirical \
-        --empirical_dist_csv  "/Users/heste/workspace/soccernet/sn-caption/Benchmarks/TemporallyAwarePooling/data/silence_distribution.csv" \
+        --empirical_dist_csv  "data/spotting/silence_distribution.csv" \
         --mean_silence_sec 2.14 \
     --label_algo action_spotting \
         --action_window_size 15 \
-        --action_rate_csv "/Users/heste/workspace/soccernet/sn-caption/Benchmarks/TemporallyAwarePooling/data/Additional_Info_Ratios__Before_and_After.csv" \
+        --action_rate_csv "data/spotting/Additional_Info_Ratios__Before_and_After.csv" \
         --default_rate 0.18 \
         --addinfo_force \
         --only_offplay

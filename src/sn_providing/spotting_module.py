@@ -14,8 +14,8 @@ from tqdm import tqdm
 from torch.utils.data import Dataset
 
 
-class MainV2Argument(Tap):
-    path: str = "./Benchmarks/TemporallyAwarePooling/data"
+class SpottingArgment(Tap):
+    path: str = "data/spotting" # spottingモジュール学習・評価に使うデータセットのパス (デモでは使わない)
     fps: int = 1
 
     split: str = "test"
@@ -30,17 +30,17 @@ class MainV2Argument(Tap):
     expon_params: dict = {"loc": 0.0, "scale": 2.1289}
     ignore_under_1sec: bool = False
     empirical_dist_csv: str = (
-        "/Users/heste/workspace/soccernet/sn-caption/Benchmarks/TemporallyAwarePooling/data/silence_distribution.csv"
+        "data/spotting/silence_distribution.csv"
     )
 
     # ラベル生成
     default_rate: float = 0.185
     label_algo: str = "action_spotting"
     action_spotting_label_csv: str = (
-        "/Users/heste/workspace/soccernet/sn-script/database/misc/soccernet_spotting_labels.csv"
+        "data/from_video/soccernet_spotting_labels.csv"
     )
     action_rate_csv: str = (
-        "/Users/heste/workspace/soccernet/sn-caption/Benchmarks/TemporallyAwarePooling/data/Additional_Info_Ratios__Before_and_After.csv"
+        "data/spotting/Additional_Info_Ratios__Before_and_After.csv"
     )
     action_window_size: float = 15
     addinfo_force: bool = False
@@ -96,7 +96,7 @@ def to_gametime(half, seconds: float) -> str:
 
 
 class SpottingModule:
-    def __init__(self, args: MainV2Argument):
+    def __init__(self, args: SpottingArgment, rng = np.random.default_rng()):
         self.args = args
         self.label_space = [0, 1]  # 映像の説明, 付加的情報
         self.label_prob = [
@@ -138,10 +138,19 @@ class SpottingModule:
         self.lognorm_params = args.lognorm_params
         self.gamma_params = args.gamma_params
         self.expon_params = args.expon_params
+        
+        self.rng = rng
 
         if args.timing_algo == "empirical":
             self.silence_dist = pl.read_csv(args.empirical_dist_csv)
             assert {"duration", "p"}.issubset(self.silence_dist.columns)
+            # 4秒以内になるように、分布をcutする TODO CSV側を修正するべきだが、めんどくさいのでここでやる
+            self.silence_dist = self.silence_dist.filter(pl.col("duration") <= 4)
+            # 合計で値を割って、和が1になるようにする
+            normalize_val = self.silence_dist["p"].sum()
+            self.silence_dist = self.silence_dist.with_columns(
+                pl.col("p") / normalize_val
+            )
 
     def __call__(self, previous_t, game=None, half=None, target_ts=None):
         if target_ts is not None:
@@ -162,6 +171,7 @@ class SpottingModule:
                     s=self.lognorm_params["shape"],
                     loc=self.lognorm_params["loc"],
                     scale=self.lognorm_params["scale"],
+                    random_state=self.rng,
                 )
                 + previous_t
             )
@@ -171,18 +181,20 @@ class SpottingModule:
                     self.gamma_params["shape"],
                     scale=self.gamma_params["scale"],
                     loc=self.gamma_params["loc"],
+                    random_state=self.rng,
                 )
                 + previous_t
             )
         elif self.timing_algo == "expon":
             next_ts = (
                 expon.rvs(
-                    scale=self.expon_params["scale"], loc=self.expon_params["loc"]
+                    scale=self.expon_params["scale"], loc=self.expon_params["loc"],
+                    random_state=self.rng,
                 )
                 + previous_t
             )
         elif self.timing_algo == "empirical":
-            delta_t = np.random.choice(
+            delta_t = self.rng.choice(
                 self.silence_dist["duration"].to_numpy(),
                 p=self.silence_dist["p"].to_numpy(),
             )
@@ -214,7 +226,7 @@ class SpottingModule:
 
         if len(label_result) == 0:
             label_prob = self.label_prob
-            next_label = np.random.choice(self.label_space, p=self.label_prob)
+            next_label = self.rng.choice(self.label_space, p=self.label_prob)
             return next_label
 
         # polars 行アクセス
@@ -238,7 +250,7 @@ class SpottingModule:
             or len(action_rate_result) == 0
             or (self.only_offplay and nearest_label not in self.offplay_events_a)
         ):
-            next_label = np.random.choice(self.label_space, p=self.label_prob)
+            next_label = self.rng.choice(self.label_space, p=self.label_prob)
             return next_label
 
         # labelの 前(rate_before) or 後(rate_after) の付加的情報の割合
@@ -254,7 +266,7 @@ class SpottingModule:
 
         # ラベルを生成
         label_prob = [1 - addinfo_rate, addinfo_rate]
-        next_label = np.random.choice(self.label_space, p=label_prob)
+        next_label = self.rng.choice(self.label_space, p=label_prob)
         return next_label
 
 
@@ -449,14 +461,10 @@ class CommentaryClipsForDiffEstimation(Dataset):
 
 
 if __name__ == "__main__":
-    args = MainV2Argument().parse_args()
+    args = SpottingArgment().parse_args()
 
-    # set random seed
-    args.lognorm_params["random_state"] = args.seed
-    args.gamma_params["random_state"] = args.seed
-    args.expon_params["random_state"] = args.seed
-    numpy.random.seed(args.seed)
-
+    rng = np.random.default_rng(args.seed)
+    
     dataset = CommentaryClipsForDiffEstimation(
         path=args.path,
         split=args.split,
@@ -467,11 +475,13 @@ if __name__ == "__main__":
 
     print(f"len(dataset_Test): {len(dataset)}")
 
-    spotting_model = SpottingModule(args)
+    spotting_model = SpottingModule(args, rng=rng)
 
     # 簡単な調査として、action_df の game と dataset の game がどれだけ一致しているかを調べる
     print(
         f"action_df と datasetの game が一致してる数: {len(set(spotting_model.action_df['game'].to_list()) & set(dataset.listGames))}"
     )
 
-    evaluate_diff_and_label(dataset, spotting_model.__call__)
+    evaluate_diff_and_label(
+        dataset, spotting_model.__call__
+    )
