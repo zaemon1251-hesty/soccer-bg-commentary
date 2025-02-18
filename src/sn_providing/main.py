@@ -82,12 +82,12 @@ class MainArgument(Tap):
     end: float = None
     save_jsonl: str = "outputs/demo-step2/commentary.jsonl"
     save_srt: str = "outputs/demo-step2/commentary.srt"
+    pbp_jsonl: Optional[str] = None
     # input_method == "csv"
     input_csv: Optional[str] = None
     output_base_dir: Optional[str] = "outputs/demo-step2"
     
     seed: int = 100
-
 
 
 def get_utterance_length(utterance: str):
@@ -107,7 +107,7 @@ def get_utterance_length_ja(utterance: str, base_time: float = 0.12, pause_time:
 
     Parameters:
         utterance (str): 発話テキスト
-        base_time (float, optional): 1文字あたりの発話時間（秒）。デフォルトは 0.12 秒
+        base_time (float, optional): 1文字あたりの発話時間（秒）。デフォルトは 0.12 秒 (o1の提案を採用)
         pause_time (float, optional): 句読点後の追加ポーズ時間（秒）。デフォルトは 0.2 秒
 
     Returns:
@@ -207,8 +207,6 @@ class DemoRunner:
         save_srt: str,
         play_by_play_jsonl: Optional[str] = None,
     ):
-        logger.info(f"Args\nstart: {start:.02f}, end: {end:.02f}, save_jsonl: {save_jsonl}, save_srt: {save_srt}")
-        
         # 田中さんのシステムの出力を映像の説明として使う
         assert play_by_play_jsonl is not None
         self.play_by_play_generator = PlayByPlayGenerator(
@@ -239,7 +237,6 @@ class DemoRunner:
                     next_ts
                 )
             elif next_label == 1: # 付加的情報
-                # 付加的情報を生成
                 query = self.build_extended_query(
                     comment_data_list, next_ts
                 )
@@ -249,17 +246,15 @@ class DemoRunner:
                     category=next_label, 
                     game_time=next_ts, 
                     query=query,
-                    position=int(next_ts)*1000, # placeholder (この値に意味はない)
-                    confidence=1. # placeholder (この値に意味はない)
+                    position=int(next_ts)*1000, # この値に意味はない
+                    confidence=1. # この値に意味はない
                 )
                 comment = self.rag_chain.invoke(spot)
-                next_start = next_ts
-                next_end = next_ts + self.func_utterance_length(comment)
             else:
                 raise RuntimeError(f"無効な発話ラベルです: {next_label}")
 
             if comment is None:
-                # 再度スポッティングからやり直し、コメントを生成できるまで繰り返す。
+                # 再度スポッティングからやり直す。これをコメントを生成できるまで繰り返す。
                 continue
             
             # 発話開始時間, 発話終了時間を設定
@@ -303,7 +298,7 @@ class DemoRunner:
         comment_data_list.to_srt(save_srt, base_time=start)
 
 
-def run_one_example(
+def run_commentary_generation_for_video(
     mode: Literal["run", "reference"], 
     game: str, 
     half: int, 
@@ -344,21 +339,30 @@ if __name__ == "__main__":
     args = MainArgument().parse_args()
 
     if args.input_method == "manual":
-        assert (args.game is not None) and (args.half is not None) and (args.start is not None) and (args.end is not None)
+        assert (args.game is not None) and (args.half is not None) and \
+            (args.start is not None) and (args.end is not None)
 
-        run_one_example(
+        logger.info(f"RUN => Game: {args.game}, Half: {args.half}, Start: {args.start}, End: {args.end},"
+                    f"Save JSONL: {args.save_jsonl}, Save SRT: {args.save_srt}")
+        run_commentary_generation_for_video(
             args.mode, args.game, 
             args.half, args.start, args.end, 
             args.comment_csv, args.video_csv, args.label_csv, 
             args.save_jsonl, args.save_srt,
-            lang=args.lang, seed=args.seed
+            lang=args.lang, seed=args.seed,
+            play_by_play_jsonl=args.pbp_jsonl
         )
+
     elif args.input_method == "csv":
         assert (args.input_csv is not None) and (args.output_base_dir is not None)
 
+        # 複数動画 まとめて実況生成
         input_df = pd.read_csv(args.input_csv)
         assert {"id", "game", "half", "start", "end"}.issubset(set(input_df.columns))
+
+        # 保存ファイル名
         save_basename = "commentary" if args.mode == "run" else "ref"
+
         for _, row in input_df.iterrows():
             pbp_jsonl = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"play-by-play-{args.lang}.jsonl")
             save_jsonl = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{save_basename}-full-{args.lang}.jsonl")
@@ -372,8 +376,9 @@ if __name__ == "__main__":
                 logger.warning(f"play-by-play ファイルが存在しません: {pbp_jsonl}")
                 continue
             
-            logger.info(f"Game: {row['game']}, Half: {row['half']}, Start: {row['start']}, End: {row['end']}, Save JSONL: {save_jsonl}, Save SRT: {save_srt}")
-            run_one_example(
+            logger.info(f"RUN => Game: {row['game']}, Half: {row['half']}, Start: {row['start']}, End: {row['end']},"
+                        f"Save JSONL: {save_jsonl}, Save SRT: {save_srt}")
+            run_commentary_generation_for_video(
                 args.mode, row["game"], 
                 row["half"], row["start"], row["end"], 
                 args.comment_csv, args.video_csv, args.label_csv, 
