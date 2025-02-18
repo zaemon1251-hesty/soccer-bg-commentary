@@ -55,9 +55,6 @@ archives/system-data.zip には以下のデータが含まれています。
 # データのセットアップ
 scripts/setup-data.sh
 
-# クエリの構築
-scripts/sn-gamestate-construct_query_comments.sh
-
 # 実況生成
 scripts/demo/run.sh
 ```
