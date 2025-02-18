@@ -5,6 +5,7 @@ import sys
 import os
 import logging
 from datetime import datetime
+from traceback import print_exc
 from typing import Literal, Optional
 
 from dotenv import load_dotenv
@@ -21,6 +22,7 @@ from sn_providing.addinfo_retrieval import (
     get_rag_chain, 
     get_retriever
 )
+from sn_providing.play_by_play import PlayByPlayGenerator
 from sn_providing.constants import (
     MODEL_CONFIG,
     EMBEDDING_CONFIG,
@@ -133,11 +135,12 @@ class DemoRunner:
         video_csv: str,
         label_csv: str,
         lang: str = "en",
-        seed: int = 100
+        seed: int = 100,
     ):
         # スポッティングモジュール関連
         rng = np.random.RandomState(seed)
         spotting_params = SpottingArgment().parse_known_args()[0]
+        spotting_params.default_rate = 0.25
         spotting_model = SpottingModule(spotting_params, rng=rng)
 
         # 選手同定+ragモジュール関連
@@ -160,8 +163,9 @@ class DemoRunner:
             format_docs=format_docs,
             instruction=instruction,
         )
-
         # メンバ変数
+        self.lang = lang
+        self.rng = rng
         self.seed = seed
         self.game = game
         self.half = half
@@ -200,9 +204,17 @@ class DemoRunner:
         start: float, 
         end: float,
         save_jsonl: str,
-        save_srt: str
+        save_srt: str,
+        play_by_play_jsonl: Optional[str] = None,
     ):
         logger.info(f"Args\nstart: {start:.02f}, end: {end:.02f}, save_jsonl: {save_jsonl}, save_srt: {save_srt}")
+        
+        # 田中さんのシステムの出力を映像の説明として使う
+        assert play_by_play_jsonl is not None
+        self.play_by_play_generator = PlayByPlayGenerator(
+            pbp_jsonl=play_by_play_jsonl, lang=self.lang, rng=self.rng,
+            base_time=start
+        )
 
         # 終了条件
         finish_time = end
@@ -223,12 +235,9 @@ class DemoRunner:
                 previous_t=prev_end, game=self.game, half=self.half
             )
             if next_label == 0: # 映像の説明
-                # まずモックとして，近傍のコメント(ラベルは問わない)を取得する．TODO tanaka-san の Integrate System を使って映像の説明を生成する
-                comment = self.gold_comment_data_list.get_comment_nearest_time(
+                comment = self.play_by_play_generator.generate(
                     next_ts
                 )
-                next_start = next_ts
-                next_end = next_ts + get_utterance_length(comment)
             elif next_label == 1: # 付加的情報
                 # 付加的情報を生成
                 query = self.build_extended_query(
@@ -249,8 +258,13 @@ class DemoRunner:
             else:
                 raise RuntimeError(f"無効な発話ラベルです: {next_label}")
 
+            if comment is None:
+                # 再度スポッティングからやり直し、コメントを生成できるまで繰り返す。
+                continue
+            
             # 発話開始時間, 発話終了時間を設定
-            assert comment is not None, "comment が None です"
+            next_start = next_ts
+            next_end = next_ts + self.func_utterance_length(comment)
 
             # コメント履歴に追加
             comment_data_list.comments.append(
@@ -301,21 +315,19 @@ def run_one_example(
     save_jsonl: str, 
     save_srt: str,
     lang: str = "ja",
-    seed: int = 100
+    seed: int = 100,
+    play_by_play_jsonl: str = None
 ):
     demo_runner = DemoRunner(
-        game, 
-        half,
-        comment_csv,
-        video_csv,
-        label_csv,
-        lang=lang,
-        seed=seed
+        game, half,
+        comment_csv, video_csv, label_csv,
+        lang=lang, seed=seed
     )
     try:
         if mode == "run":
             demo_runner.run(
-                start, end, save_jsonl, save_srt
+                start, end, save_jsonl, save_srt,
+                play_by_play_jsonl=play_by_play_jsonl
             )
         elif mode == "reference":
             demo_runner.reference(
@@ -324,7 +336,8 @@ def run_one_example(
         else:
             raise ValueError(f"無効なモードです: {mode}")
     except Exception as e:
-        logger.error(f"エラーが出ました: {save_jsonl=}\n内容: {e}")
+        logger.error(f"エラーが出ました: {save_jsonl=}")
+        print_exc()
         return
 
 if __name__ == "__main__":
@@ -345,12 +358,18 @@ if __name__ == "__main__":
 
         input_df = pd.read_csv(args.input_csv)
         assert {"id", "game", "half", "start", "end"}.issubset(set(input_df.columns))
-        basename = "commentary" if args.mode == "run" else "ref"
+        save_basename = "commentary" if args.mode == "run" else "ref"
         for _, row in input_df.iterrows():
-            save_jsonl = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{basename}-{args.lang}-2.jsonl")
-            save_srt = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{basename}-{args.lang}-2.srt")
+            pbp_jsonl = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"play-by-play-{args.lang}.jsonl")
+            save_jsonl = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{save_basename}-full-{args.lang}.jsonl")
+            save_srt = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{save_basename}-full-{args.lang}.srt")
+            
             if os.path.exists(save_jsonl) and os.path.exists(save_srt):
                 logger.info(f"Skip: {row['id']}")
+                continue
+            
+            if not os.path.exists(pbp_jsonl):
+                logger.warning(f"play-by-play ファイルが存在しません: {pbp_jsonl}")
                 continue
             
             logger.info(f"Game: {row['game']}, Half: {row['half']}, Start: {row['start']}, End: {row['end']}, Save JSONL: {save_jsonl}, Save SRT: {save_srt}")
@@ -359,8 +378,9 @@ if __name__ == "__main__":
                 row["half"], row["start"], row["end"], 
                 args.comment_csv, args.video_csv, args.label_csv, 
                 save_jsonl,save_srt,
-                lang=args.lang, seed=args.seed
+                lang=args.lang, seed=args.seed, play_by_play_jsonl=pbp_jsonl
             )
+
         logger.info("Finished")
     else:
         raise ValueError(f"無効な入力方法です: {args.input_method}")

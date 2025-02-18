@@ -13,4 +13,5 @@ uv run python src/sn_providing/main.py \
     --mode run \
     --input_csv $csv_path \
     --output_base_dir $base_dir \
-    --lang ja
+    --lang ja \
+    --seed 256

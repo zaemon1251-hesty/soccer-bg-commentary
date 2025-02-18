@@ -12,12 +12,13 @@ uv run python src/sn_providing/main.py \
     --input_method csv \
     --mode run \
     --input_csv $csv_path \
-    --output_base_dir $base_dir
+    --output_base_dir $base_dir \
+    --seed 256
 
-# 現実の実況を出力
-uv run python src/sn_providing/main.py \
-    --input_method csv \
-    --mode reference \
-    --input_csv $csv_path \
-    --output_base_dir $base_dir
+# # 現実の実況を出力
+# uv run python src/sn_providing/main.py \
+#     --input_method csv \
+#     --mode reference \
+#     --input_csv $csv_path \
+#     --output_base_dir $base_dir
 

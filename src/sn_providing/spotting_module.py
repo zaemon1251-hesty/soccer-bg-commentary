@@ -18,7 +18,7 @@ class SpottingArgment(Tap):
     path: str = "data/spotting" # spottingモジュール学習・評価に使うデータセットのパス (デモでは使わない)
     fps: int = 1
 
-    split: str = "test"
+    split: str = "test" # spottingモジュール学習・評価に使うデータセットのパス (デモでは使わない)
 
     # タイミング生成
     timing_algo: str = "empirical"
@@ -30,7 +30,7 @@ class SpottingArgment(Tap):
     expon_params: dict = {"loc": 0.0, "scale": 2.1289}
     ignore_under_1sec: bool = False
     empirical_dist_csv: str = (
-        "data/spotting/silence_distribution.csv"
+        "data/demo/silence_distribution.csv"
     )
 
     # ラベル生成
@@ -40,7 +40,7 @@ class SpottingArgment(Tap):
         "data/from_video/soccernet_spotting_labels.csv"
     )
     action_rate_csv: str = (
-        "data/spotting/Additional_Info_Ratios__Before_and_After.csv"
+        "data/demo/Additional_Info_Ratios__Before_and_After.csv"
     )
     action_window_size: float = 15
     addinfo_force: bool = False
