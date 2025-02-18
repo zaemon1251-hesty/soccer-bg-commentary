@@ -12,28 +12,52 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ## data
 
-archives/data.zip には以下のデータが含まれています。
+archives/system-data.zip には以下のデータが含まれています。
 
-- スポッティング結果 (json file)
-  - half: # 1(前半) or 2(後半)
-  - category: # 0(映像の説明) or 1(付加的情報)
-  - gameTime: # 発話タイミング(フォーマット -> "half - mm:ss")
-  - etc...
-- ラベル付き実況コメントデータ (csv file)
-- 知識ベース (txt files)
+```
+├── addinfo_retrieval  [3249 entries exceeds filelimit, not opening dir]
+├── commentary
+│   └── scbi-v2.csv
+├── demo
+│   ├── Action_Ratios_Before_and_After_15_Seconds.csv
+│   ├── Action_and_Rates_Data.csv
+│   ├── Additional_Info_Ratios__Before_and_After.csv
+│   ├── Extracted_Action_Rates.csv
+│   ├── Label_Algorithm_Averages__Rounded_to_3_Decimal_Places_.csv
+│   ├── players_in_frames_sn_gamestate.csv
+│   ├── sample_metadata.csv
+│   ├── silence_distribution.csv
+│   └── silence_distribution_over_1sec.csv
+├── exist_targets.txt
+├── from_video
+│   ├── players_in_frames.csv
+│   ├── players_in_frames_sn_gamestate.csv
+│   └── soccernet_spotting_labels.csv
+├── reference_documents
+│   └── evaluation-samples.yaml
+└── spotting
+    ├── test.csv
+    ├── train.csv
+    └── valid.csv
+```
+
+このうち、重要なファイルを紹介します
+
+- ラベル付き実況コメントデータ (commentary/)
+- 外部知識 (addinfo_retrieval/)
   - [wikipediaから選手情報を収集](https://github.com/zaemon1251-hesty/sn-script/blob/dev/src/sn_script/download_articles.py)
   - [trafilaturaでテキスト抽出](https://github.com/zaemon1251-hesty/sn-script/blob/dev/src/sn_script/extract_text.py)
-- (example_data -> langchainのサンプルデータ)
+- 実況生成デモに用いる情報群 (from_video/, demo/)
 
-## usage
+## 使い方
 
 ```bash
 # データのセットアップ
-scripts/setup_data.sh
+scripts/setup-data.sh
 
 # クエリの構築
 scripts/sn-gamestate-construct_query_comments.sh
 
-# 実況コメント生成
-scripts/nlp2025-eval-gen.sh
+# 実況生成
+scripts/demo/run.sh
 ```
