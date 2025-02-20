@@ -66,6 +66,36 @@ Comment:彼は前回の試合で延長戦に登場しました。
 出力は必ず、です・ます口調の日本語で行ってください。
 """
 
+COMMENT_TO_EVENT_TEXT_PROMPT = """You are a professional play-by-play commentator for a live soccer broadcast.
+Using the following live commentary, provide an alternative natural-sounding version.
+Guidelines:
+Refer to only one information even if multiple are provided in Real live commentary.
+Use 10 words or fewer.
+You may state only a player’s name.
+You may state a player’s name with an action.
+You may state only an action.
+Occasionally, include emotions and details.
+If there is no Reals live commentary, please mention something about someone's action such as pass, dribble.
+
+Real live commentary:
+{comment}
+"""
+
+COMMENT_TO_EVENT_TEXT_PROMPT_JA = """あなたは、ライブサッカー放送のプロの実況者です。
+以下の英語のライブ実況をもとに、別の自然な日本語実況を作成してください。
+
+ガイドライン：
+実際のライブ実況に複数の情報が含まれていても、1つの情報だけに言及してください。
+10単語以内で表現してください。
+選手名のみでも構いません。
+選手名とその行動のみでも構いません。
+行動のみでも構いません。
+時折、感情や詳細を含めても構いません。
+もしライブ実況がない場合、誰かのパスやアクションなどを何かしら言及してください。
+
+ライブ実況:
+{comment}
+"""
 
 # No retrievalの場合のプロンプト
 prompt_template_no_retrieval = """{instruction}

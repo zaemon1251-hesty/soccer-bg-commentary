@@ -29,7 +29,9 @@ from sn_providing.constants import (
     SEARCH_CONFIG,
     PERSIST_LANGCHAIN_DIR,
     INSTRUCTION,
-    INSTRUCTION_JA
+    INSTRUCTION_JA,
+    COMMENT_TO_EVENT_TEXT_PROMPT,
+    COMMENT_TO_EVENT_TEXT_PROMPT_JA
 )
 
 
@@ -87,6 +89,10 @@ class MainArgument(Tap):
     input_csv: Optional[str] = None
     output_base_dir: Optional[str] = "outputs/demo-step2"
     
+    # その他
+    default_rate: float = 0.25
+    default_text_threshold: float = 1.0
+    
     seed: int = 100
 
 
@@ -136,11 +142,14 @@ class DemoRunner:
         label_csv: str,
         lang: str = "en",
         seed: int = 100,
+        **kwargs
     ):
         # スポッティングモジュール関連
         rng = np.random.RandomState(seed)
-        spotting_params = SpottingArgment().parse_known_args()[0]
-        spotting_params.default_rate = 0.25
+        
+        spotting_params: SpottingArgment = SpottingArgment().parse_known_args()[0]
+        spotting_params.default_rate = kwargs.get("default_rate", spotting_params.default_rate)
+        
         spotting_model = SpottingModule(spotting_params, rng=rng)
 
         # 選手同定+ragモジュール関連
@@ -164,6 +173,8 @@ class DemoRunner:
             instruction=instruction,
         )
         # メンバ変数
+        self.llm = llm
+        self.default_text_threshold = kwargs.get("default_text_threshold", 1.0)
         self.lang = lang
         self.rng = rng
         self.seed = seed
@@ -198,6 +209,13 @@ class DemoRunner:
 
         query = build_query(**query_args)
         return query
+    
+    def get_pbp_alternative_commentary(self, comment: str) -> str:
+        # COMMENT_TO_EVENT_TEXT_PROMPT
+        template = COMMENT_TO_EVENT_TEXT_PROMPT_JA if self.lang == "ja" else COMMENT_TO_EVENT_TEXT_PROMPT
+        prompt = template.format(comment=comment)
+        response = self.llm.generate([[prompt]])
+        return response.generations[0][0].text
 
     def run(
         self,
@@ -207,12 +225,6 @@ class DemoRunner:
         save_srt: str,
         play_by_play_jsonl: Optional[str] = None,
     ):
-        # 田中さんのシステムの出力を映像の説明として使う
-        assert play_by_play_jsonl is not None
-        self.play_by_play_generator = PlayByPlayGenerator(
-            pbp_jsonl=play_by_play_jsonl, lang=self.lang, rng=self.rng,
-            base_time=start
-        )
 
         # 終了条件
         finish_time = end
@@ -227,13 +239,26 @@ class DemoRunner:
                 comment.end_time < start:
                 comment_data_list.comments.append(comment)
         
+        if play_by_play_jsonl is not None and os.path.exists(play_by_play_jsonl):
+            # 田中さんのシステムの出力を映像の説明として使う
+            self.play_by_play_generator = PlayByPlayGenerator(
+                pbp_jsonl=play_by_play_jsonl, lang=self.lang, rng=self.rng,
+                base_time=start, default_text_threshold=self.default_text_threshold
+            )
+            play_by_play_func = self.play_by_play_generator.generate
+        else:
+            def play_by_play_func(next_ts: float) -> str:
+                comment = comment_data_list.get_comment_nearest_time(next_ts)
+                return self.get_pbp_alternative_commentary(comment)
+        
+        # 実況生成開始
         while 1:
             ## スポッティング
             next_ts, next_label = self.spotting_model(
                 previous_t=prev_end, game=self.game, half=self.half
             )
             if next_label == 0: # 映像の説明
-                comment = self.play_by_play_generator.generate(
+                comment = play_by_play_func(
                     next_ts
                 )
             elif next_label == 1: # 付加的情報
@@ -255,6 +280,11 @@ class DemoRunner:
 
             if comment is None:
                 # 再度スポッティングからやり直す。これをコメントを生成できるまで繰り返す。
+                continue
+            comment = comment.replace("Comment:", "").strip()
+            if comment_data_list.is_duplicate(comment):
+                # 再度スポッティングからやり直す。これを新たなコメントが生成できるまで繰り返す。
+                prev_end += 0.5 # (なぜか)そのままの時間ならスタックするので，0.5秒進める
                 continue
             
             # 発話開始時間, 発話終了時間を設定
@@ -368,12 +398,9 @@ if __name__ == "__main__":
             save_jsonl = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{save_basename}-full-{args.lang}.jsonl")
             save_srt = os.path.join(f"{args.output_base_dir}", f"{row['id']:04d}", f"{save_basename}-full-{args.lang}.srt")
             
-            if os.path.exists(save_jsonl) and os.path.exists(save_srt):
+            if os.path.exists(save_jsonl) and os.path.exists(save_srt) and \
+                input(f"{row['id']} 上書きしますか？ [y/n] ").lower() != "y":
                 logger.info(f"Skip: {row['id']}")
-                continue
-            
-            if not os.path.exists(pbp_jsonl):
-                logger.warning(f"play-by-play ファイルが存在しません: {pbp_jsonl}")
                 continue
             
             logger.info(f"RUN => Game: {row['game']}, Half: {row['half']}, Start: {row['start']}, End: {row['end']},"

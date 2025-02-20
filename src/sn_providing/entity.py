@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from loguru import logger
 import yaml
 from typing import Literal
-
+from util import wrap_text
 
 @dataclass(eq=True)
 class SpottingData:
@@ -223,10 +223,19 @@ class CommentDataList:
 
                 start_vtt = format_vtt_time(start_sec)
                 end_vtt = format_vtt_time(end_sec)
+                
+                # srtは字幕が勝手に折り返す設定ではないので適宜改行を入れる必要がある
+                wrapped_text = wrap_text(s.text)
+                
                 f.write(f"{i}\n")
                 f.write(f"{start_vtt} --> {end_vtt}\n")
-                f.write(f"{s.text}\n\n")
-
+                f.write(f"{wrapped_text}\n\n")
+    
+    def is_duplicate(self, target_comment: str) -> bool:
+        for comment in self.comments:
+            if comment.text == target_comment:
+                return True
+        return False
 
 class VideoData:
     def __init__(
@@ -262,8 +271,9 @@ class VideoData:
             (self.player_df["game"] == game) & \
             (self.player_df["time"] >= game_time - self.sec_window_player) & \
             (self.player_df["time"] <= game_time + self.sec_window_player)
-        ]
+        ].copy()
         # team name と player name, jersey number を unique に取得
+        spot_players_df["name"] = spot_players_df["short_name"]
         player_dict = (
             spot_players_df[['name', 'team', 'jersey_number']]
             .drop_duplicates()

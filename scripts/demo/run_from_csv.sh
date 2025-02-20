@@ -13,7 +13,7 @@ uv run python src/sn_providing/main.py \
     --mode run \
     --input_csv $csv_path \
     --output_base_dir $base_dir \
-    --seed 256
+    --seed 101010
 
 # # 現実の実況を出力
 # uv run python src/sn_providing/main.py \

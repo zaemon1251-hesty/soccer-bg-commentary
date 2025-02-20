@@ -31,18 +31,8 @@ from sn_providing.constants import (
     DOCUMENT_DIR,
     PERSIST_LANGCHAIN_DIR,
     INSTRUCTION_NO_RETRIEVAL,
-    INSTRUCTION_JA
 )
 from sn_providing.util import format_docs, log_documents, log_prompt
-
-# (project-root)/.env を読み込む
-load_dotenv()
-
-# llama_index,langchain のログを標準出力に出す
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename="logs/addinfo--{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")),
-)
 
 
 class Arguments(Tap):
@@ -271,6 +261,16 @@ def get_document_splits(
 
 
 if __name__ == "__main__":
+    # (project-root)/.env を読み込む
+    load_dotenv()
+
+    # llama_index,langchain のログを標準出力に出す
+    logging.basicConfig(
+        level=logging.DEBUG,
+        filename="logs/addinfo--{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")),
+    )
+
+
     args = Arguments().parse_args()
 
     spotting_data_list = SpottingDataList.from_jsonline(args.input_file)
