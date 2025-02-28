@@ -1,6 +1,5 @@
 from tap import Tap
 from loguru import logger
-from datetime import datetime
 
 from sn_providing.entity import CommentDataList, SpottingDataList, VideoData
 
@@ -52,8 +51,10 @@ def build_query(comments: CommentDataList, max_length: int = 256, **kwargs) -> s
     # 試合情報を取得
     if kwargs.get("game_metadata"):
         game_data = kwargs["game_metadata"]
-        game_query = f"Game: {game_data['league']} {game_data['league']} {game_data['date']} {game_data['home_team']} vs {game_data['away_team']}"
-        query = game_query + "\n" + query
+        game_query = f"Game: {game_data['league']} {game_data['date']} "
+        game_query += f"{game_data['home_team']} vs {game_data['away_team']}"
+        season_query = f"Season: {game_data['season']}"
+        query = game_query + "\n" + season_query + "\n" + query
 
     # アクション情報を取得
     if actions := kwargs.get("actions"):
@@ -64,7 +65,9 @@ def build_query(comments: CommentDataList, max_length: int = 256, **kwargs) -> s
 
 
 def run(args: Arguments):
-    # input_file includes json: {"UrlLocal": "path", "predictions", [{"gameTime": "1 - 00:24", "category": 0 or 1}, {...}, ...]}
+    # input_file includes json: {
+    # "UrlLocal": "path", "predictions", [{"gameTime": "1 - 00:24", "category": 0 or 1},
+    # {...}, ...]}
     """
     1. Read files
     2. for each timestamp with label "1",
@@ -129,6 +132,6 @@ def run(args: Arguments):
 
 
 if __name__ == "__main__":
-    ### construct query from the input file
+    # construct query from the input file
     args = Arguments().parse_args()
     run(args)

@@ -126,7 +126,7 @@ def get_rag_chain(retriever, llm, **kwargs):
         get_reference_documents_partial: 正解文書を取得する関数
     """
     instruction = kwargs.get("instruction", INSTRUCTION)
-    
+
     no_retrieval = kwargs.get("no_retrieval", False)
     reference_documents_yaml = kwargs.get("reference_documents_yaml", None)
 
@@ -269,7 +269,6 @@ if __name__ == "__main__":
         level=logging.DEBUG,
         filename="logs/addinfo--{}.log".format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")),
     )
-
 
     args = Arguments().parse_args()
 

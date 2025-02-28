@@ -242,13 +242,16 @@ class PlayByPlayGenerator:
         assert {"start_time", "end_time", "action", "location", "name", "team"}.issubset(
             play_by_play_df.columns
         ), "カラムに不足があります。"
+        # 数値文字列を数値に変換
+        play_by_play_df["start_time"] = play_by_play_df["start_time"].astype(float)
+        play_by_play_df["end_time"] = play_by_play_df["end_time"].astype(float)
 
         # start_time, end_time は ビデオの開始時間が基準になっているから、base_time (= demo runner の start [試合経過時間(秒)]) を足して調整
         play_by_play_df["start_time"] += self.base_time
         play_by_play_df["end_time"] += self.base_time
-        
+
         play_by_play_df = play_by_play_df.sort_values(by="start_time")
-        
+
         return play_by_play_df
 
     def generate(self, time: float):
