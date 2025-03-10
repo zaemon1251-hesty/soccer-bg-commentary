@@ -92,9 +92,10 @@ class MainArgument(Tap):
     # input_method == "csv"
     input_csv: Optional[str] = None
     output_base_dir: Optional[str] = "outputs/demo-step2"
+    pbp_base_dir: Optional[str] = "data/demo/pbp"
 
     # その他
-    default_rate: float = 0.25
+    default_rate: float = 0.18
     default_text_threshold: float = 1.0
 
     seed: int = 100
@@ -464,7 +465,7 @@ if __name__ == "__main__":
 
         for _, row in input_df.iterrows():
             pbp_jsonl = os.path.join(
-                f"{args.output_base_dir}",
+                f"{args.pbp_base_dir}",
                 f"{row['id']:04d}",
                 f"play-by-play-{args.lang}.jsonl",
             )

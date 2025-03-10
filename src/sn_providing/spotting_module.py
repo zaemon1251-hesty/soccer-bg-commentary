@@ -6,8 +6,6 @@ from typing import Callable
 from sklearn.metrics import confusion_matrix
 from tap import Tap
 from scipy.stats import lognorm, expon, gamma
-import scipy
-import numpy
 import pandas as pd
 import os
 from tqdm import tqdm
@@ -15,10 +13,14 @@ from torch.utils.data import Dataset
 
 
 class SpottingArgment(Tap):
-    path: str = "data/spotting" # spottingモジュール学習・評価に使うデータセットのパス (デモでは使わない)
+    path: str = (
+        "data/spotting"  # spottingモジュール学習・評価に使うデータセットのパス (デモでは使わない)
+    )
     fps: int = 1
 
-    split: str = "test" # spottingモジュール学習・評価に使うデータセットのパス (デモでは使わない)
+    split: str = (
+        "test"  # spottingモジュール学習・評価に使うデータセットのパス (デモでは使わない)
+    )
 
     # タイミング生成
     timing_algo: str = "empirical"
@@ -29,19 +31,13 @@ class SpottingArgment(Tap):
     gamma_params: dict = {"shape": 0.3283, "loc": 0.0, "scale": 6.4844}
     expon_params: dict = {"loc": 0.0, "scale": 2.1289}
     ignore_under_1sec: bool = False
-    empirical_dist_csv: str = (
-        "data/demo/silence_distribution.csv"
-    )
+    empirical_dist_csv: str = "data/demo/silence_distribution.csv"
 
     # ラベル生成
     default_rate: float = 0.185
     label_algo: str = "action_spotting"
-    action_spotting_label_csv: str = (
-        "data/from_video/soccernet_spotting_labels.csv"
-    )
-    action_rate_csv: str = (
-        "data/demo/Additional_Info_Ratios__Before_and_After.csv"
-    )
+    action_spotting_label_csv: str = "data/from_video/soccernet_spotting_labels.csv"
+    action_rate_csv: str = "data/demo/Additional_Info_Ratios__Before_and_After.csv"
     action_window_size: float = 15
     addinfo_force: bool = False
     only_offplay: bool = False
@@ -96,7 +92,7 @@ def to_gametime(half, seconds: float) -> str:
 
 
 class SpottingModule:
-    def __init__(self, args: SpottingArgment, rng = np.random.default_rng()):
+    def __init__(self, args: SpottingArgment, rng=np.random.default_rng()):
         self.args = args
         self.label_space = [0, 1]  # 映像の説明, 付加的情報
         self.label_prob = [
@@ -138,7 +134,7 @@ class SpottingModule:
         self.lognorm_params = args.lognorm_params
         self.gamma_params = args.gamma_params
         self.expon_params = args.expon_params
-        
+
         self.rng = rng
 
         if args.timing_algo == "empirical":
@@ -188,7 +184,8 @@ class SpottingModule:
         elif self.timing_algo == "expon":
             next_ts = (
                 expon.rvs(
-                    scale=self.expon_params["scale"], loc=self.expon_params["loc"],
+                    scale=self.expon_params["scale"],
+                    loc=self.expon_params["loc"],
                     random_state=self.rng,
                 )
                 + previous_t
@@ -331,7 +328,7 @@ def evaluate_diff_and_label(dataset, predict_model: Callable):
         result_dict["metadata"]["predict_label"],
     ).ravel()
     print(f"confusion matrix: {tn=} {fp=} {fn=} {tp=}")
-    ## calculate label F1
+    # calculate label F1
     pr = tp / (tp + fp)
     re = tp / (tp + fn)
     f1_score = 2 * pr * re / (pr + re)
@@ -347,7 +344,7 @@ def evaluate_diff_and_label(dataset, predict_model: Callable):
         result_dict["metadata"]["predict_label_w_gold_timing"],
     ).ravel()
     print(f"confusion matrix: {tn=} {fp=} {fn=} {tp=}")
-    ## calculate label F1
+    # calculate label F1
     pr = tp / (tp + fp)
     re = tp / (tp + fn)
     f1_score = 2 * pr * re / (pr + re)
@@ -464,7 +461,7 @@ if __name__ == "__main__":
     args = SpottingArgment().parse_args()
 
     rng = np.random.default_rng(args.seed)
-    
+
     dataset = CommentaryClipsForDiffEstimation(
         path=args.path,
         split=args.split,
@@ -479,9 +476,8 @@ if __name__ == "__main__":
 
     # 簡単な調査として、action_df の game と dataset の game がどれだけ一致しているかを調べる
     print(
-        f"action_df と datasetの game が一致してる数: {len(set(spotting_model.action_df['game'].to_list()) & set(dataset.listGames))}"
+        "action_df と datasetの game が一致してる数:"
+        f" {len(set(spotting_model.action_df['game'].to_list()) & set(dataset.listGames))}"
     )
 
-    evaluate_diff_and_label(
-        dataset, spotting_model.__call__
-    )
+    evaluate_diff_and_label(dataset, spotting_model.__call__)
