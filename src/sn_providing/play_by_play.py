@@ -168,8 +168,8 @@ def convert_location(location_str, lang="en"):
 
 def generate_commentary(
     event_data: Dict[str, Dict[str, List[str]]],
-    lang: str = "en", 
-    time_length: str = "short", 
+    lang: str = "en",
+    time_length: str = "short",
     rng: np.random.Generator = np.random.default_rng(),
     default_text_threshold: float = 1.0
 ):
@@ -210,13 +210,20 @@ def generate_commentary(
             phrases = action_dict.get(time_length)
             template: str = rng.choice(phrases)
             return template.format(player=player, team=team, location=converted_location)
-    except:
+    except Exception:
         pass
-    
+
     return text
 
+
 class PlayByPlayGenerator:
-    def __init__(self, pbp_jsonl: str, lang: str = "en", rng=None, base_time=0, default_text_threshold=1.0, spotting_csv: str = None):
+    def __init__(self,
+                 pbp_jsonl: str,
+                 lang: str = "en",
+                 rng=None,
+                 base_time=0,
+                 default_text_threshold=1.0,
+                 spotting_csv: str = None):
         self.lang = lang
         self.rng = rng or np.random.default_rng()
         self.base_time = base_time
@@ -232,12 +239,12 @@ class PlayByPlayGenerator:
         self.play_by_play_df = pd.DataFrame(self.play_by_play_data)
 
         self.play_by_play_df = self.preprocess_data(self.play_by_play_df)
-        
+
         if spotting_csv:
             self.spotting_df = pd.read_csv(spotting_csv)
             self.spotting_df = self._preprocess_label_df(self.spotting_df)
             self.spotting_df = self.spotting_df.sort_values(by="start_time")
-    
+
     def preprocess_data(self, play_by_play_df: pd.DataFrame):
         assert {"start_time", "end_time", "action", "location", "name", "team"}.issubset(
             play_by_play_df.columns
@@ -263,14 +270,20 @@ class PlayByPlayGenerator:
         length = self.rng.choice(self.lengths)
 
         return generate_commentary(
-            event_data, lang=self.lang, time_length=length, rng=self.rng, default_text_threshold=self.default_text_threshold
+            event_data, lang=self.lang, time_length=length, rng=self.rng,
+            default_text_threshold=self.default_text_threshold
         )
-    
+
     @staticmethod
     def _preprocess_label_df(label_df: pd.DataFrame) -> pd.DataFrame:
         # 前処理
         label_df["half"] = label_df["gameTime"].str.split(" - ").str[0].astype(float)
-        label_df["time"] = label_df["gameTime"].str.split(" - ").str[1].map(PlayByPlayGenerator.gametime_to_seconds).astype(float)
+        label_df["time"] = (
+            label_df["gameTime"]
+            .str.split(" - ").str[1]
+            .map(PlayByPlayGenerator.gametime_to_seconds)
+            .astype(float)
+        )
         label_df["game"] = label_df["game"].str.rstrip("/")
         return label_df
 
@@ -278,19 +291,20 @@ class PlayByPlayGenerator:
     def gametime_to_seconds(gametime):
         if isinstance(gametime, int) or isinstance(gametime, float):
             return gametime
-        
+
         if gametime.count(":") == 0:
             return float(gametime)
-        
+
         if gametime.count(":") == 2:
             gametime = ":".join(gametime.split(":")[:2])
-        
+
         m, s = gametime.split(":")
-        
+
         return int(m) * 60 + int(s)
 
-# --- test ---
+
 if __name__ == "__main__":
+    # --- test ---
     event_list = [
         {
             "start_time": 0.08,

@@ -14,20 +14,16 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 archives/system-data.zip には以下のデータが含まれています。
 
-```
+```bash
 ├── addinfo_retrieval  [3249 entries exceeds filelimit, not opening dir]
 ├── commentary
 │   └── scbi-v2.csv
 ├── demo
-│   ├── Action_Ratios_Before_and_After_15_Seconds.csv
 │   ├── Action_and_Rates_Data.csv
 │   ├── Additional_Info_Ratios__Before_and_After.csv
 │   ├── Extracted_Action_Rates.csv
-│   ├── Label_Algorithm_Averages__Rounded_to_3_Decimal_Places_.csv
-│   ├── players_in_frames_sn_gamestate.csv
 │   ├── sample_metadata.csv
 │   ├── silence_distribution.csv
-│   └── silence_distribution_over_1sec.csv
 ├── exist_targets.txt
 ├── from_video
 │   ├── players_in_frames.csv
@@ -55,6 +51,9 @@ archives/system-data.zip には以下のデータが含まれています。
 # データのセットアップ
 scripts/setup-data.sh
 
-# 実況生成
+# 試合映像に対して実況生成
 scripts/demo/run.sh
+
+# 複数動画に対して、実況生成からデモ動画作成まで一気通貫に実行
+scripts/demo/submission.sh
 ```
