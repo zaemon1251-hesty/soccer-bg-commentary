@@ -1,4 +1,4 @@
-# 付加的情報の提供システム
+# soccer-bg-commentary
 
 ## 前提
 
@@ -47,7 +47,7 @@ archives/system-data.zip には以下のデータが含まれています。
   - [wikipediaから選手情報を収集](https://github.com/zaemon1251-hesty/sn-script/blob/dev/src/sn_script/download_articles.py)
   - [trafilaturaでテキスト抽出](https://github.com/zaemon1251-hesty/sn-script/blob/dev/src/sn_script/extract_text.py)
 - 実況生成デモに用いる情報群 (from_video/, demo/)
-  - `players_in_frames.csv`は、[tracklab](https://github.com/zaemon1251-hesty/tracklab)で生成した選手追跡結果を、[soccer-bg-script](https://github.com/zaemon1251-hesty/soccer-bg-script)で選手名およびボール座標を付与する後処理を施したもの
+  - `players_in_frames_sn_gamestate.csv`は、[tracklab](https://github.com/zaemon1251-hesty/tracklab)で生成した選手追跡結果を、[soccer-bg-script](https://github.com/zaemon1251-hesty/soccer-bg-script)で選手名およびボール座標を付与する後処理を施したもの
   - `soccernet_spotting_labels.csv`は[soccer-bg-script](https://github.com/zaemon1251-hesty/soccer-bg-script)で作成したAction Spottingのラベルcsv
   - `pbp`はGoogle Drive経由で田中さんから受け取った、Play-by-Playのjsonlファイル
   - `sample_metadata.csv`は、評価およびデモ動画作成に使った映像のメタデータ
